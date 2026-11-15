@@ -201,6 +201,13 @@ def gabinete(raios=()):
     # o presidente, sentado de frente para a janela (de costas para a porta), com o braco direito caido
     pres = M.Boneco("br_presidente", (0, 2.3), olhar=180)
     pres.parado(1, bpy.context.scene.frame_end, "sentar", olhar=180)
+    # o braco direito do modelo some: no lugar dele fica o braco caido com o relogio (senao ele fica com dois)
+    bpy.context.view_layer.update()
+    bracos = [o for o in pres._novos if o.name.startswith("arm-")]
+    if bracos:
+        direito = max(bracos, key=lambda o: o.matrix_world.translation.x)
+        direito.hide_render = True
+        direito.hide_viewport = True
     M.caixa((0.44, 0.17, 0.17), (0.47, RELOGIO[1] + 0.1, 0.99), "#1c2440", g, rot=(0, math.radians(8), 0))   # do ombro ate o braco da poltrona
     # o braco caido, com o relogio
     x, y = RELOGIO[0], RELOGIO[1] + 0.1
