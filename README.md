@@ -19,6 +19,8 @@ estudio/
   eleven.py                      integração com o ElevenLabs (com cache de falas)
   gerar3d.py, historia_shorts.py, animacao_shorts.py   utilidades usadas pelo gerar_drama
   blender/mundo3d.py             biblioteca 3D: cenários (hall de prédio, ônibus), bonecos, câmeras
+  caderno.py                     caderno do detetive: pistas escritas na tela e cena de recapitulação
+  blender/palacio.py             cenários de "O Relojoeiro" e a câmera em primeira pessoa (P.pov)
   blender/render_cena.py         script que o Blender executa para cada cena
   blender/fazer_skins.py         pinta as skins dos personagens (elenco brasileiro)
   blender/fazer_texturas*.py     texturas com texto (painéis, celular, folha de regras)
@@ -26,6 +28,7 @@ estudio/
   series/roteiros/               roteiros escritos
   series/ultima_parada/          plano e estado do capítulo de referência ("Última Parada", cap. 1)
   series/portaria/               plano de outra série ("Portaria da Noite", cap. 1)
+  series/o_relojoeiro/           plano em PRIMEIRA PESSOA, com caderno de pistas e opções narradas ("O Relojoeiro", cap. 1)
 ```
 
 ## O que NÃO está aqui (e precisa ser instalado à parte)
