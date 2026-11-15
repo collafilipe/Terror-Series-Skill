@@ -1,0 +1,62 @@
+{
+  "narrador": {
+    "voice_id": "nPczCjzI2devNBz1zQrb",
+    "nome": "Brian",
+    "stability": 0.6,
+    "style": 0.15
+  },
+  "narrador_b": {
+    "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+    "nome": "George",
+    "stability": 0.4,
+    "style": 0.4
+  },
+  "jovem": {
+    "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
+    "nome": "Liam",
+    "stability": 0.35,
+    "style": 0.45
+  },
+  "idoso": {
+    "voice_id": "pqHfZKP75CvOlQylNhV4",
+    "nome": "Bill",
+    "stability": 0.45,
+    "style": 0.4
+  },
+  "idoso_radio": {
+    "voice_id": "pqHfZKP75CvOlQylNhV4",
+    "nome": "Bill",
+    "stability": 0.45,
+    "style": 0.4
+  },
+  "idosa": {
+    "voice_id": "pFZP5JQG7iQjIQuC4Bku",
+    "nome": "Lily",
+    "stability": 0.45,
+    "style": 0.35
+  },
+  "mulher": {
+    "voice_id": "EXAVITQu4vr4xnSDxMaL",
+    "nome": "Sarah",
+    "stability": 0.45,
+    "style": 0.3
+  },
+  "mulher_radio": {
+    "voice_id": "EXAVITQu4vr4xnSDxMaL",
+    "nome": "Sarah",
+    "stability": 0.45,
+    "style": 0.3
+  },
+  "crianca": {
+    "voice_id": "FGY2WhTYpPnrIDTdsKH5",
+    "nome": "Laura",
+    "stability": 0.35,
+    "style": 0.45
+  },
+  "crianca_interfone": {
+    "voice_id": "FGY2WhTYpPnrIDTdsKH5",
+    "nome": "Laura",
+    "stability": 0.35,
+    "style": 0.45
+  }
+}

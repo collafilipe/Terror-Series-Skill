@@ -1,0 +1,75 @@
+---
+name: serie-terror
+description: Cria e continua séries de terror em capítulos para Shorts/Reels (3D no Blender, vozes ElevenLabs, público vota A ou B). Use quando o usuário pedir uma série nova, um capítulo novo, a continuação de uma série, ou escrever /serie-terror. Conduz o fluxo com aprovações do usuário em cada etapa — premissa, roteiro, vídeo — e salva o estado para as continuações.
+---
+
+# Séries de terror em capítulos
+
+Tudo fica em `<pasta do MoneyPrinterTurbo>\estudio`. **Antes de qualquer coisa, leia `GUIA_PRODUCAO.md`**
+nessa pasta: ele lista o que o usuário aprovou, o que reprovou e as lições de cada capítulo.
+A referência de qualidade é `series/ultima_parada/` (capítulo aprovado com entusiasmo).
+
+O usuário fala português informal, por texto ou voz transcrita. Responda em português, direto.
+Você não consegue ouvir áudio: sempre diga isso ao entregar e peça que ele avalie voz e volume.
+
+## Regra geral do fluxo
+Nunca avance para a etapa seguinte sem a aprovação explícita do usuário. A cada etapa ele pode
+**aprovar**, **pedir ajuste** (você corrige e mostra de novo) ou **reprovar** (você propõe outra coisa).
+Registre cada decisão em `series/<slug>/estado.json` e cada lição nova em `GUIA_PRODUCAO.md`.
+
+## Modo 1 — Série nova
+1. **Premissas.** Proponha 3 ou 4 premissas originais com a ferramenta de pergunta (uma frase cada, com o gancho).
+   Critérios: um lugar só (um cenário para construir), fenômeno com regras, contexto claro em 10 segundos,
+   final que muda a pergunta. Nunca copie histórias dos canais de referência.
+2. **Roteiro.** Escreva o capítulo 1 em `series/roteiros/<slug>-cap1.md` no formato do roteiro de
+   `ultima-parada-cap1.md`: premissa, regras reveladas (uma por cena), vozes, sons, 9 a 11 cenas com a fala de cada
+   uma, tela de escolha A/B e ideias para a continuação de cada opção. Mostre um resumo no chat e envie o arquivo.
+   Espere a aprovação.
+3. **Produção** (só depois do roteiro aprovado):
+   - Cenário: reutilize um existente (`M.hall_predio`, `M.onibus`) ou construa um novo em `blender/mundo3d.py`,
+     no mesmo estilo (`M.ambiente('interior')` liga o contorno). Texturas com texto: gere com PIL, como em
+     `blender/fazer_texturas_onibus.py`.
+   - Plano: `series/<slug>/cap1_plano.py`, copiando a estrutura de `series/ultima_parada/cap1_plano.py`
+     (cenas com `hud`, `amb`, `linhas` e `codigo`; marcas `T` para sincronizar com o som).
+   - Prévia: `..\.venv\Scripts\python.exe gerar_drama.py <plano> --previa`, **olhe** `previas.jpg`, corrija câmeras
+     e repita só as cenas alteradas com `--cenas 2,5`.
+   - Final: `..\.venv\Scripts\python.exe gerar_drama.py <plano>` em segundo plano (30 a 45 min).
+   - Revise 20 quadros do `final.mp4` antes de entregar. Confira o saldo do ElevenLabs.
+4. **Entrega.** Envie o vídeo e o `publicar.txt`. Diga o que conferiu, o que não conferiu e o que sabe que
+   ficou imperfeito. Espere a avaliação: aprovado, ajustar (som: `--so-audio` não renderiza de novo) ou refazer.
+5. **Salvar.** Com o vídeo aprovado, grave em `estado.json`: premissa, cenário, vozes, regras reveladas,
+   mistérios abertos, e o capítulo com pergunta, opções A/B, ideias de continuação e `status: video_aprovado`.
+
+## Modo 2 — Continuação
+1. Liste as séries (`series/*/estado.json`) e pergunte qual continuar, se ele não disse.
+2. Leia o `estado.json` e o roteiro do capítulo anterior. Pergunte **qual opção o público votou** (A ou B).
+3. **O que vai acontecer.** Proponha 2 ou 3 caminhos para o capítulo (um parágrafo cada: o que acontece,
+   qual regra nova é revelada, qual é o novo dilema A/B). Respeite tudo que já foi estabelecido.
+   Espere ele escolher ou ajustar.
+4. Siga os passos 2 a 5 do Modo 1 para o capítulo N. O capítulo abre lembrando a escolha do público em uma
+   frase e mostrando a consequência. Reaproveite o cenário e as mesmas vozes dos personagens.
+5. Atualize o `estado.json`: `escolha_do_publico` do capítulo anterior e o capítulo novo.
+
+## Elenco (regra do usuário)
+- O boneco em bloco (estilo Roblox) continua sempre. O que muda é a **skin**, pintada em `blender/fazer_skins.py`.
+- **Série nova:** crie um elenco novo, com personagens, roupas e aparências diferentes das outras séries, sempre com
+  cara de Brasil (tons de pele variados, cabelo escuro ou grisalho, roupas do dia a dia). Acrescente as entradas em
+  `ELENCO`, rode o script, registre os tipos `br_<nome>` em `KTIPOS` (mundo3d.py) e renderize uma folha do elenco para
+  conferir. Grave o elenco em `estado.json`.
+- **Continuação:** use exatamente as mesmas skins do `elenco` salvo no `estado.json`. Skin nova só para personagem
+  novo que entra na história.
+- Nunca use boneco todo branco. Figura "sem rosto" = roupa e pele normais com o rosto liso (`rosto=False`).
+
+## Padrões aprovados (resumo; o guia tem os detalhes)
+- Vozes: ElevenLabs (`elevenlabs_key.txt`, `vozes_elevenlabs.json`). Narrador Brian. Números por extenso.
+  Cerca de 900 a 1.100 caracteres por capítulo; plano gratuito de 10.000 por mês. Avise o saldo.
+- Som: sem música; ambiente baixo (`VOL_AMBIENTE 0.3`, `VOL_EFEITO 0.55`), um som-assinatura por série.
+- Visual: contorno preto, placar pequeno no canto, narrador em branco com palavra-chave vermelha, falas em
+  amarelo, tela A/B no fim. Sem números gigantes, sem título gigante, sem legenda no topo.
+- Bonecos: Kenney em bloco, pose firme (não usar o "idle"), gestos só uma vez, evitar câmera de lado no rosto.
+- Duração: 90 a 110 segundos.
+
+## Cuidados
+- Não cole nem repita a chave do ElevenLabs no chat.
+- Baixar ou instalar qualquer coisa nova exige pedir permissão antes.
+- Lembre o usuário de conferir no site do ElevenLabs se o plano dele permite uso comercial antes de monetizar.

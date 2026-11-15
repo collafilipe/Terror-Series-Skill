@@ -1,0 +1,53 @@
+{
+  "serie": "Última Parada",
+  "slug": "ultima_parada",
+  "premissa": "Você pega o último ônibus da madrugada (409). O motorista avisa: não desce antes do ponto final. A cada parada desce um passageiro num lugar que não existe, e o ônibus nunca fica mais vazio.",
+  "cenario": "M.onibus() em blender/mundo3d.py; texturas em blender/fazer_texturas_onibus.py",
+  "vozes": {
+    "narrador": "Brian",
+    "voce": "Liam (jovem)",
+    "motorista": "Bill (idoso)",
+    "senhora": "Lily (idosa)",
+    "aviso": "Sarah (mulher_radio)"
+  },
+  "regras_reveladas": [
+    "a campainha toca sozinha",
+    "quem desce é trocado: o lugar volta a ficar ocupado por alguém sem rosto",
+    "a linha 409 foi desativada em 2011 e o celular diz que você nunca saiu do ponto",
+    "quando a campainha tocar pra você, não levante",
+    "a próxima parada é o seu endereço, e na porta da sua casa tem alguém igual a você"
+  ],
+  "misterios_abertos": [
+    "quem é a senhora",
+    "o que é o ponto final",
+    "o que acontece com quem é trocado",
+    "quem está na sua casa"
+  ],
+  "capitulos": [
+    {
+      "num": 1,
+      "titulo": "Ainda são seis",
+      "roteiro": "series/roteiros/ultima-parada-cap1.md",
+      "plano": "series/ultima_parada/cap1_plano.py",
+      "video": "series/ultima_parada/cap1/final.mp4",
+      "status": "video_aprovado",
+      "pergunta": "O QUE VOCÊ FAZ?",
+      "a": "Desço na minha casa",
+      "b": "Fico até o ponto final",
+      "escolha_do_publico": null,
+      "ideias_continuacao": {
+        "A": "a pessoa na porta te entrega a chave e sobe no ônibus no seu lugar",
+        "B": "o ônibus esvazia de verdade, e o ponto final tem nome"
+      }
+    }
+  ],
+  "elenco": {
+    "voce": "br_voce (jovem pardo, cabelo preto, camiseta azul-marinho, jeans)",
+    "senhora": "br_senhora (idosa morena, cabelo grisalho, oculos, vestido florido roxo)",
+    "motorista": "br_motorista (uniforme azul-claro, gravata, bigode grisalho)",
+    "homem que desceu": "br_homem (camisa listrada azul e branca, barba)",
+    "trocado": "br_trocado (mesma roupa do homem que desceu, sem rosto)",
+    "passageiros": "br_torcedor (camisa da selecao), br_moca (cabelo cacheado, blusa laranja), br_idoso (xadrez, oculos)"
+  },
+  "regra_elenco": "Nas continuacoes, os mesmos personagens usam as mesmas skins. Skin nova so para personagem novo."
+}
