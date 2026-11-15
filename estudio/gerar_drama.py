@@ -8,7 +8,10 @@ Uso:
 Plano (arquivo .py com um dict PLANO):
   titulo, rotulo, pergunta, opcao_a, opcao_b, legenda_post
   cenas: [{hud, amb: [chuva, zumbido, grilos, tique, coracao, ronco], linhas: [(quem, texto) ...], codigo}]
-  linhas: ("narrador"|personagem de drama.PERSONAGENS, "texto com *destaque*"), ("som", nome), ("pausa", segundos)
+  linhas: ("narrador"|personagem de drama.PERSONAGENS, "texto com *destaque*"), ("som", nome), ("pausa", segundos),
+          ("fundo", nome) = som que toca por baixo, sem segurar a narracao
+  sons_em: [("palavra", nome)] = som no instante em que o narrador diz a palavra
+  amb (camadas continuas): chuva, chuva_forte, vento, trovoada, zumbido, bipes, tique, grilos, coracao, tensao, ronco, motor
   No codigo 3D: F = quadros da cena; T = quadro de cada evento ("som" pelo nome, falas como "l0", "l1"...).
 """
 
@@ -28,9 +31,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import historia_shorts as base  # noqa: E402
 import drama as D  # noqa: E402
 import gerar3d as G  # noqa: E402
+import caderno as C  # noqa: E402
 
 FPS, SR = 30, D.SR
 CARD = 3.5  # segundos da tela de escolha
+CARD_NARRADO = 2.2   # sobra depois que o narrador termina de ler as opcoes
 VOL_AMBIENTE = 0.3   # camadas de fundo (chuva, zumbido, grilos, coracao...) bem abaixo das vozes
 VOL_EFEITO = 0.55    # sons pontuais (interfone, elevador, radio, impacto)
 
@@ -47,6 +52,21 @@ SONS = {  # nome -> (funcao, tempo que o roteiro avanca)
     "campainha": (lambda: D.campainha(), 1.1),
     "freio": (lambda: D.freio_ar(), 1.0),
     "silencio": (None, 0.6),
+    "trovao": (lambda: D.trovao(), 0.6),
+    "pagina": (lambda: D.pagina(), 0.5),
+    "lapis": (lambda: D.lapis(1.2), 1.8),      # o caderno aparece e a pista e anotada
+    "luz_cai": (lambda: D.luz_cai(), 0.9),
+    "alarme": (lambda: D.alarme(2), 1.2),
+    "portao": (lambda: D.portao(), 1.6),
+    "portao_fundo": (lambda: D.portao(), 0.5),      # a narracao segue por cima
+    "tique_para": (lambda: D.tique_para(4), 0.5),
+    "passos_marmore": (lambda: D.passos_marmore(4), 1.6),
+    "passos_fundo": (lambda: D.passos_marmore(5), 0.4),
+    "passos_longos": (lambda: D.passos_marmore(12, 0.55), 0.0),
+    "passos_agua": (lambda: D.passos_agua(16), 0.0),
+    "passos_chegando": (lambda: D.passos_chegando(13.0), 0.0),
+    "macaneta": (lambda: D.macaneta(), 0.9),
+    "rangido": (lambda: D.rangido(), 0.6),
     "grilo_para": (None, 0.0),
 }
 
@@ -65,6 +85,11 @@ def montar_cena_audio(cena, i, pasta, ultima):
     for k, (quem, txt) in enumerate(cena["linhas"]):
         if quem == "pausa":
             t += float(txt)
+        elif quem == "fundo":      # som que toca sem segurar a narracao
+            fn, _ = SONS[txt]
+            marcas[txt] = int(t * FPS) + 1
+            if fn:
+                m.add(fn(), t, VOL_EFEITO)
         elif quem == "som":
             fn, avanco = SONS[txt]
             marcas[txt] = int(t * FPS) + 1
@@ -80,15 +105,33 @@ def montar_cena_audio(cena, i, pasta, ultima):
             legendas.append((t, t + len(audio) / SR, quem,
                              [(t + a, t + b, p, base.norm(p) in destaque and base.norm(p) != "") for a, b, p in palavras]))
             t += len(audio) / SR + (0.32 if quem.startswith("narrador") else 0.22)
-    dur = t + 0.3 + (CARD if ultima else 0)
-    if ultima:
-        marcas["card"] = int((dur - CARD) * FPS)
-        m.add(D.impacto(), dur - CARD, VOL_EFEITO)
+    for palavra, nome in cena.get("sons_em", []):   # som no instante em que o narrador diz a palavra
+        quando = [a for _, _, quem, pal in legendas for a, _, p, _ in pal if base.norm(p) == base.norm(palavra)]
+        if quando and SONS[nome][0]:
+            m.add(SONS[nome][0](), quando[0], VOL_EFEITO)
+            marcas.setdefault(nome, int(quando[0] * FPS) + 1)
+    opc = [a for _, _, quem, pal in legendas if quem.startswith("narrador")
+           for a, _, p, _ in pal if base.norm(p).startswith("opc")]
+    if ultima and len(opc) >= 2:
+        # opcoes narradas: a tela de escolha entra quando o narrador diz "Opcao A" e a B quando ele chega nela
+        com = [a for _, _, quem, pal in legendas for a, _, p, _ in pal if base.norm(p) == "comenta"]
+        dur = t + 0.3 + CARD_NARRADO
+        marcas["card"] = int((opc[0] - 0.25) * FPS)
+        marcas["card_b"] = int((opc[1] - 0.15) * FPS)
+        marcas["card_fim"] = int(((com[-1] if com else t) - 0.1) * FPS)
+        m.add(D.impacto(), opc[0] - 0.25, VOL_EFEITO * 0.6)
+    else:
+        dur = t + 0.3 + (CARD if ultima else 0)
+        if ultima:
+            marcas["card"] = int((dur - CARD) * FPS)
+            m.add(D.impacto(), dur - CARD, VOL_EFEITO)
     amb = cena.get("amb", [])
     fim_grilo = (marcas["grilo_para"] / FPS) if "grilo_para" in marcas else dur
     camadas = {"chuva": (D.chuva, 1.0, dur), "zumbido": (D.zumbido, 1.0, dur), "tique": (D.tique, 1.0, dur),
                "grilos": (D.grilos, 1.0, fim_grilo), "coracao": (D.coracao, 0.9, dur),
-               "motor": (D.motor, 1.0, dur),
+               "motor": (D.motor, 1.0, dur), "chuva_forte": (D.chuva_forte, 1.0, dur),
+               "vento": (D.vento, 1.0, dur), "trovoada": (D.trovoada, 1.0, dur), "bipes": (D.bipes, 1.0, dur),
+               "tensao": (D.tensao, 1.0, dur),
                "ronco": (lambda d: D.ronco_grave(d, cresce=True), 0.8, dur)}
     for nome in amb:
         fn, vol, d = camadas[nome]
@@ -200,7 +243,15 @@ def main():
             if erro:
                 base.log(f"   cena {i + 1}: ERRO -> {erro.strip()[-400:]}")
                 continue
-            imgs = [Image.open(f).convert("RGB") for f in sorted(pasta.glob("f_*.png"))[:args.amostras]]
+            arqs = sorted(pasta.glob("f_*.png"))[:args.amostras]
+            ov = C.overlay(plano, i, marcas_c[i], frames[i])
+            imgs = []
+            for f in arqs:
+                im = Image.open(f).convert("RGB")
+                if ov:
+                    im = im.resize((1080, 1920))
+                    im = (ov(im, int(f.stem.split("_")[1])) or im).resize((432, 768))
+                imgs.append(im)
             folha = Image.new("RGB", (sum(im.width for im in imgs), imgs[0].height))
             x = 0
             for im in imgs:
@@ -230,11 +281,15 @@ def main():
         if erro:
             raise SystemExit(f"cena {i + 1} falhou: {erro[-800:]}")
         base.log(f"   cena {i + 1}/{n}: {frames[i]} quadros em {time.time() - t1:.0f}s")
-        infos.append({"pasta": pasta, "frames": frames[i], "numero": "", "hud": c.get("hud", "")})
+        infos.append({"pasta": pasta, "frames": frames[i], "numero": "", "hud": c.get("hud", ""),
+                      "overlay": C.overlay(plano, i, marcas_c[i], frames[i])})
 
     base.log("3/4 placar, tela de escolha e legendas...")
     serie = {"rotulo": plano["rotulo"], "pergunta": plano["pergunta"], "a": plano["opcao_a"], "b": plano["opcao_b"],
-             "card_frames": int(CARD * FPS)}
+             "card_frames": frames[-1] - marcas_c[-1]["card"]}
+    mc = marcas_c[-1]
+    if "card_b" in mc:
+        serie["atrasos"] = (0, 6, mc["card_b"] - mc["card"], mc["card_fim"] - mc["card"])
     G.compor(infos, sum(frames), work / "visual.mp4", plano["titulo"], serie)
     escrever_ass(legendas_abs, work / "legendas.ass")
     (work / "fonts").mkdir(exist_ok=True)

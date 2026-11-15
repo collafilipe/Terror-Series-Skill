@@ -80,6 +80,23 @@ Registre cada decisão em `series/<slug>/estado.json` e cada lição nova em `GU
 - Bonecos: Kenney em bloco, pose firme (não usar o "idle"), gestos só uma vez, evitar câmera de lado no rosto.
 - Duração: 90 a 110 segundos.
 
+## Primeira pessoa (regra do usuário)
+- Histórias novas são filmadas em **primeira pessoa**: a câmera são os olhos de "você", que não aparece.
+  Usar `P.pov(...)` com lente 18 a 24 (campo de visão aberto) e balanço de passo quando anda.
+- No roteiro, descrever cada cena pelo que "você" vê e faz (anda, vira, se abaixa, se debruça).
+- Os personagens encaram a câmera. Objetos que você segura aparecem com as mãos na parte de baixo da tela.
+
+## Sons (regra do usuário)
+- Sem música, mas com **som de tudo**: 2 camadas de ambiente por cena + sons de passos, portas, objetos e sustos,
+  em volume baixo. Usar `("fundo", nome)` e `"sons_em"` para não alongar o vídeo. Lista completa no guia.
+
+## Recursos prontos no gerador
+- Caderno: `"nota": "..."` + `("som", "lapis")` na cena; recapitulação com `"caderno_cheio": True`.
+- Opções narradas: a última fala do narrador com "Opção A: ... Opção B: ..." sincroniza a tela de escolha sozinha.
+- `T['p_palavra']`: quadro em que o narrador diz a palavra, para a câmera acompanhar a narração.
+- Duração máxima 3 min (Shorts): conferir "duracao total" na prévia antes de renderizar.
+- Detalhes e lições em `estudio/GUIA_PRODUCAO.md`, seção "Como fazer no plano".
+
 ## Cuidados
 - Não cole nem repita a chave do ElevenLabs no chat.
 - Baixar ou instalar qualquer coisa nova exige pedir permissão antes.

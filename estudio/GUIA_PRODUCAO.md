@@ -102,3 +102,50 @@ No capítulo do ônibus o espectador ficou perdido: as falas apareciam "jogadas"
   Em séries sem investigação, usar o equivalente (lista de regras descobertas).
 - **Linguagem:** escrever para uma pessoa leiga e distraída. Frases simples, uma informação por frase, sem termo
   técnico sem explicação. Se a pessoa perder 5 segundos do vídeo, ainda precisa entender o que está acontecendo.
+
+## Como fazer no plano: caderno, opções narradas e marcas de palavra (15/11/2026)
+Tudo já está no gerador (`gerar_drama.py` + `caderno.py`); basta usar no plano da cena:
+- **Pista no caderno:** `"nota": "Sala trancada por dentro"` na cena e `("som", "lapis")` como última linha. O caderninho
+  desce do alto, mostra as pistas anteriores e escreve a nova em vermelho. Frase curta (até ~38 letras), numeração automática.
+- **Recapitulação:** cena com `"caderno_cheio": True`. A 1ª fala do narrador abre o caderno; cada fala seguinte revela uma
+  pista (uma fala por pista, na mesma ordem das notas).
+- **Opções narradas:** na última cena, a fala do narrador tem "Opção A: ... Opção B: ... O que você faz? Comenta A ou B."
+  A tela de escolha entra sozinha quando ele diz "Opção A", a B quando chega nela e o rodapé no "Comenta".
+- **Marcas de palavra:** no código 3D, `T['p_palavra']` é o quadro em que o narrador diz a palavra (sem acento, 1ª vez na
+  cena). Serve para a câmera acompanhar a narração (ex.: passar pelo rosto de cada suspeito quando ele é citado).
+  Sempre com `T.get('p_x', int(F*0.5))`.
+- **Sons que não seguram a narração:** `portao_fundo`, `passos_fundo` (a fala entra por cima). Trovão e impacto são cortados
+  no fim da cena: nunca deixar como última linha.
+- **Duração:** Shorts aceita no máximo 3 min. Conferir "duracao total" na prévia; se passar de 175 s, enxugar falas.
+  Narrador apresentando falas + caderno + opções narradas dá ~3 min para 11 cenas; para ficar em 2 min, usar 8 cenas.
+- **Cenários de O Relojoeiro:** `blender/palacio.py` (no código da cena é `P`): gabinete, corredor, sala_cameras, salao +
+  suspeitos, portaria, patio (com chuva 3D), relampago, apagao. Texturas: `blender/fazer_texturas_relojoeiro.py`.
+- **Lições das prévias do Relojoeiro:** móvel alto perto da câmera tampa o objeto do close (afastar o objeto do móvel);
+  câmera por cima do ombro tem que ficar do lado oposto ao personagem de costas; a animação `correr` deixa o boneco
+  inclinado demais em plano fechado (usar `andar`); objeto na mão fica ao lado do corpo, nunca solto na frente do peito;
+  página de livro para close deve ser em pé (vídeo vertical) e com pouca emissão, senão estoura no branco.
+
+## Vídeo em PRIMEIRA PESSOA (pedido do usuário em 15/11/2026: "vai dar mais suspense")
+**Padrão para as histórias novas:** a câmera são os olhos do protagonista ("você"). Ele não aparece em cena.
+- Usar `P.pov(keys, alvo_keys, lente, andando=[(f0, f1)])` (em `blender/palacio.py`): `keys` = por onde você anda
+  (altura dos olhos 1,52 m automática; passar z para se abaixar ou se debruçar), `alvo_keys` = para onde você olha,
+  `andando` = trechos com balanço de passo.
+- **Campo de visão aberto** (o usuário pediu "fov mais alto"): lente 18 a 24. Só o close do gancho usa lente 40.
+- Não criar o boneco do protagonista. Os outros personagens olham PARA A CÂMERA (olhar=0 quando a câmera está em -Y).
+- O que o roteiro manda "você" fazer vira movimento de câmera: andar até alguém, virar para a porta, se abaixar para ver
+  um objeto, se debruçar sobre o balcão, olhar um suspeito de cada vez (usar `T['p_palavra']`).
+- Objeto na mão: `P.maos_com_livro(x, y, z)` mostra as mãos e as mangas na parte de baixo da tela; manter o objeto abaixo
+  de 80% da altura para não brigar com a legenda (z ~1,05 com a câmera a 0,45 m).
+- A fala de "você" continua existindo (voz própria, legenda amarela), só que sem boneco.
+- Em continuação de série antiga em terceira pessoa (Última Parada), perguntar ao usuário antes de mudar.
+
+## Sons: ambiente e objetos (reforçado pelo usuário em 15/11/2026)
+O usuário quer **som de tudo o que acontece**, para dar suspense e drama, sempre em volume baixo e sem música.
+- Toda cena tem pelo menos 2 camadas de ambiente (`amb`) e 1 som de ação ou objeto.
+- Camadas: chuva, chuva_forte, vento, trovoada (trovões distantes), zumbido, bipes, tique, coracao, tensao (tom grave
+  que cresce), ronco, motor, grilos.
+- Ação/objeto: passos (`passos_longos`, `passos_agua`, `passos_chegando`), `portao`, `macaneta`, `rangido`, `pagina`,
+  `lapis`, `alarme`, `luz_cai`, `trovao`, `tique_para`, `estatica`, `impacto`.
+- `("fundo", nome)` toca por baixo da narração sem aumentar a duração; `"sons_em": [("palavra", nome)]` dispara o som
+  na palavra exata do narrador (ex.: estática quando ele diz "pularam", impacto em "sumiu").
+- Tensão crescente: `coracao` + `tensao` a partir da virada da história até o dilema.

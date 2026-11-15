@@ -13,6 +13,7 @@ import traceback
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import mundo3d as M  # noqa: E402
+import palacio as P  # noqa: E402
 
 cfg = json.load(open(sys.argv[sys.argv.index("--") + 1], encoding="utf-8"))
 F = int(cfg["frames"])
@@ -23,7 +24,7 @@ try:
     M.nova_cena(frames=F)
     M._rng.seed(cfg.get("seed", 1))
     M.LIMPAR = True
-    ns = {"M": M, "F": F, "T": cfg.get("marcas", {}), "math": math, "random": random.Random(cfg.get("seed", 1))}
+    ns = {"M": M, "P": P, "F": F, "T": cfg.get("marcas", {}), "math": math, "random": random.Random(cfg.get("seed", 1))}
     exec(compile(cfg["codigo"], "cena", "exec"), ns)
     sc = M.bpy.context.scene
     if sc.camera is None:

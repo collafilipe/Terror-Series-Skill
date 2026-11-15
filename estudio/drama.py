@@ -363,6 +363,102 @@ def passos_marmore(n_passos=4, intervalo=0.5):
     return out
 
 
+def vento(dur):
+    """Vento assobiando baixo, em ondas."""
+    n = int(dur * SR)
+    t = _t(dur)
+    r = _passa_baixa(_rng.normal(0, 1, n), 70) * 6
+    onda = 0.5 + 0.5 * np.sin(2 * np.pi * 0.11 * t + 2) * np.sin(2 * np.pi * 0.04 * t + 0.5)
+    assobio = np.sin(2 * np.pi * (410 + 60 * np.sin(2 * np.pi * 0.13 * t)) * t) * 0.012 * onda
+    return r * 0.05 * onda + assobio
+
+
+def trovoada(dur):
+    """Trovoes distantes espalhados pela cena (bem abafados)."""
+    n = int(dur * SR)
+    out = np.zeros(n)
+    rr = np.random.default_rng(int(dur * 100) % 97)
+    s = rr.uniform(2.5, 5.0)
+    while s < dur - 2.5:
+        tr = _passa_baixa(trovao(2.8), 30) * rr.uniform(0.5, 0.9)
+        i = int(s * SR)
+        j = min(n, i + len(tr))
+        out[i:j] += tr[: j - i]
+        s += rr.uniform(8, 14)
+    return out
+
+
+def passos_agua(n_passos=8, intervalo=0.52):
+    """Passos em chao molhado: batida abafada + respingo."""
+    out = np.zeros(int((n_passos * intervalo + 0.5) * SR))
+    L = int(0.2 * SR)
+    tp = np.arange(L) / SR
+    for k in range(n_passos):
+        r = _rng.normal(0, 1, L)
+        resp = (r - _passa_baixa(r, 7)) * np.exp(-tp * 22) * 0.5
+        bat = (_passa_baixa(_rng.normal(0, 1, L), 30) * 4 + np.sin(2 * np.pi * 110 * tp)) * np.exp(-tp * 40)
+        i = int(k * intervalo * SR)
+        out[i:i + L] += (resp + bat) * 0.2
+    return out
+
+
+def passos_chegando(dur=12.0, intervalo=0.62):
+    """Passos em marmore vindo de longe: comecam baixos e com eco, terminam perto."""
+    out = np.zeros(int((dur + 0.5) * SR))
+    L = int(0.07 * SR)
+    tp = np.arange(L) / SR
+    s = 0.0
+    while s < dur:
+        k = s / dur
+        p = (_rng.normal(0, 1, L) * 0.6 + np.sin(2 * np.pi * 900 * tp) + np.sin(2 * np.pi * 210 * tp)) * np.exp(-tp * 70)
+        i = int(s * SR)
+        out[i:i + L] += p * (0.05 + 0.2 * k)
+        j = i + int(0.13 * SR)
+        out[j:j + L] += p * 0.05 * (1 - 0.6 * k)
+        s += intervalo
+    return out
+
+
+def macaneta():
+    """Macaneta forcada duas vezes: porta trancada."""
+    out = np.zeros(int(1.1 * SR))
+    L = int(0.09 * SR)
+    tp = np.arange(L) / SR
+    for s, amp in ((0.0, 1.0), (0.14, 0.7), (0.5, 1.0), (0.64, 0.8)):
+        c = (np.sin(2 * np.pi * 1700 * tp) * 0.5 + np.sin(2 * np.pi * 520 * tp) + _rng.normal(0, 1, L) * 0.4) * np.exp(-tp * 60)
+        i = int(s * SR)
+        out[i:i + L] += c * 0.16 * amp
+    return out
+
+
+def rangido(dur=1.4):
+    """Porta de madeira rangendo."""
+    t = _t(dur)
+    f = 180 + 120 * np.sin(2 * np.pi * 0.7 * t) + 40 * np.sin(2 * np.pi * 9 * t)
+    s = np.sign(np.sin(2 * np.pi * np.cumsum(f) / SR)) * 0.5 + np.sin(2 * np.pi * np.cumsum(f * 2.01) / SR) * 0.5
+    return _passa_baixa(s, 6) * np.hanning(len(t)) * 0.06
+
+
+def bipes(dur):
+    """Bipes baixos e espacados de equipamento de seguranca."""
+    n = int(dur * SR)
+    out = np.zeros(n)
+    L = int(0.07 * SR)
+    c = np.sin(2 * np.pi * 1480 * np.arange(L) / SR) * np.hanning(L) * 0.05
+    for s in np.arange(0.8, dur, 2.3):
+        i = int(s * SR)
+        if i + L < n:
+            out[i:i + L] += c
+    return out
+
+
+def tensao(dur):
+    """Tom grave e continuo de suspense, crescendo devagar (nao e musica: um unico zumbido)."""
+    t = _t(dur)
+    z = np.sin(2 * np.pi * 55 * t) * 0.6 + np.sin(2 * np.pi * 55.7 * t) * 0.6 + np.sin(2 * np.pi * 110.4 * t) * 0.2
+    return z * (0.35 + 0.65 * t / max(dur, 0.1)) * 0.09
+
+
 # ------------------------------------------------------------------ mixagem
 class Mix:
     def __init__(self, dur):

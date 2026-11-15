@@ -572,6 +572,9 @@ def compor(cenas_info, total_frames, saida_mp4, titulo="", serie=None):
                 treme = 9 * max(0, 1 - gf / 20)
                 a = min(1.0, (DUR_TIT - gf) / 8)
                 anim.colar(frame, tit, W / 2 + treme * math.sin(gf * 2.1), 760 + treme * math.cos(gf * 1.7), s, 0, a)
+            ov = info.get("overlay")
+            if ov:   # desenho 2D proprio da cena (ex.: caderno do detetive)
+                frame = ov(frame, f) or frame
             if serie:
                 # placar discreto no canto (capitulo + contador da cena)
                 frame.paste(hud_titulo, (46, 150), hud_titulo)
@@ -586,7 +589,8 @@ def compor(cenas_info, total_frames, saida_mp4, titulo="", serie=None):
                     k = gf - card["ini"]
                     escuro = Image.new("RGB", (W, H), (0, 0, 0))
                     frame = Image.blend(frame, escuro, min(0.45, k / 20))
-                    for atraso, chave, y in ((0, "pergunta", 700), (8, "a", 880), (16, "b", 1030), (24, "rodape", 1175)):
+                    at = serie.get("atrasos", (0, 8, 16, 24))
+                    for atraso, chave, y in ((at[0], "pergunta", 700), (at[1], "a", 880), (at[2], "b", 1030), (at[3], "rodape", 1175)):
                         if k >= atraso:
                             p = min(1.0, (k - atraso) / 8)
                             s = anim.ease_out_back(p)
