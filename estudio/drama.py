@@ -331,7 +331,9 @@ def portao(dur=2.2):
     n = int(dur * SR)
     t = _t(dur)
     r = _passa_baixa(_rng.normal(0, 1, n), 60) * 4 * (0.7 + 0.3 * np.sin(2 * np.pi * 9 * t))
-    corpo = (r + np.sin(2 * np.pi * 62 * t) * 0.5) * np.minimum(1, t / 0.2) * (t < dur - 0.35) * 0.1
+    motor = np.sin(2 * np.pi * 96 * t) * 0.35 + np.sin(2 * np.pi * 191 * t) * 0.18          # motor eletrico
+    rang = np.sin(2 * np.pi * np.cumsum(520 + 90 * np.sin(2 * np.pi * 1.7 * t)) / SR) * 0.07 * (0.5 + 0.5 * np.sin(2 * np.pi * 3.1 * t))
+    corpo = (r + np.sin(2 * np.pi * 62 * t) * 0.5 + motor + rang) * np.minimum(1, t / 0.2) * (t < dur - 0.35) * 0.1
     tb = np.clip(t - (dur - 0.35), 0, None)
     batida = (np.sin(2 * np.pi * 70 * tb) + 0.4 * np.sin(2 * np.pi * 310 * tb)) * np.exp(-tb * 14) * (t >= dur - 0.35) * 0.4
     return corpo + batida

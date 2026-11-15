@@ -149,3 +149,12 @@ O usuário quer **som de tudo o que acontece**, para dar suspense e drama, sempr
 - `("fundo", nome)` toca por baixo da narração sem aumentar a duração; `"sons_em": [("palavra", nome)]` dispara o som
   na palavra exata do narrador (ex.: estática quando ele diz "pularam", impacto em "sumiu").
 - Tensão crescente: `coracao` + `tensao` a partir da virada da história até o dilema.
+
+## Correções pedidas no Relojoeiro (15/11/2026)
+- **Boca mexe quando o personagem fala.** Toda fala de personagem que aparece em cena leva
+  `boneco.falar(T['lK'], T['lK_fim'])` (K = posição da fala em `linhas`). Precisa da skin `_fala` (boca aberta), que o
+  `fazer_skins.py` gera junto com a normal.
+- **Nada de membro solto:** se aparece um braço, aparece o corpo. O presidente é um boneco sentado na poltrona
+  (`br_presidente`), com o braço caído ligado ao ombro.
+- **Tudo o que acontece tem som:** chuva, portão abrindo, porta abrindo (`rangido`), passos, maçaneta, página. O usuário
+  esclareceu que não era reclamação do áudio, e sim a regra: nenhuma ação muda sem som.

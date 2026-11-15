@@ -198,7 +198,10 @@ def gabinete(raios=()):
         M.caixa((0.12, 0.74, 0.34), (dx, 2.3, 0.72), couro, g)
     M.cilindro(0.3, 0.06, (0, 2.3, 0.0), "#222226", 10, pai=g)
     M.cilindro(0.05, 0.42, (0, 2.3, 0.04), "#222226", 8, pai=g)
-    M.caixa((0.5, 0.36, 0.62), (0, 2.38, 0.86), "#1c2440", g)                       # paleto (so um vulto)
+    # o presidente, sentado de frente para a janela (de costas para a porta), com o braco direito caido
+    pres = M.Boneco("br_presidente", (0, 2.3), olhar=180)
+    pres.parado(1, bpy.context.scene.frame_end, "sentar", olhar=180)
+    M.caixa((0.44, 0.17, 0.17), (0.47, RELOGIO[1] + 0.1, 0.99), "#1c2440", g, rot=(0, math.radians(8), 0))   # do ombro ate o braco da poltrona
     # o braco caido, com o relogio
     x, y = RELOGIO[0], RELOGIO[1] + 0.1
     M.caixa((0.17, 0.17, 0.46), (x, y, 0.86), "#1c2440", g)

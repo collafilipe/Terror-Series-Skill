@@ -50,6 +50,7 @@ P.corredor()
 a, mc = T.get('l2', int(F*0.35)), T.get('macaneta', int(F*0.55))
 c = M.Boneco('br_coronel', (-0.9, 14.6), olhar=15)
 c.parado(1, F, 'parado', olhar=15)
+c.falar(T.get('l2', 1), T.get('l2_fim', 1))
 rosto = (-0.9, 14.6, 1.47)
 P.pov([(1, (0.2, 3.5)), (a - 10, (0.1, 13.2)), (mc - 6, (0.1, 13.3)), (mc + 16, (0.3, 14.7, 1.45)), (F, (0.3, 14.9, 1.42))],
       [(1, rosto), (mc - 6, rosto), (mc + 16, (0.0, 15.8, 1.25)), (F, (0.0, 15.8, 1.25))],
@@ -58,7 +59,8 @@ P.pov([(1, (0.2, 3.5)), (a - 10, (0.1, 13.2)), (mc - 6, (0.1, 13.3)), (mc + 16, 
         # 4 - as cameras pularam sete minutos
         {"hud": "FALTAM 1H24", "amb": ["zumbido", "bipes"], "nota": "As câmeras perderam 7 minutos",
          "sons_em": [("pularam", "estatica")],
-         "linhas": [("narrador", "Na sala de segurança, duzentas e doze câmeras. Nenhuma mostra alguém entrando. Mas você repara num detalhe: todas pularam os mesmos sete *minutos*."),
+         "linhas": [("fundo", "rangido"),
+                    ("narrador", "Na sala de segurança, duzentas e doze câmeras. Nenhuma mostra alguém entrando. Mas você repara num detalhe: todas pularam os mesmos sete *minutos*."),
                     ("som", "lapis")],
          "codigo": """
 p = T.get('p_pularam', int(F*0.6))
@@ -109,6 +111,7 @@ P.pov([(1, (0.25, 1.3)), (al, (0.25, 1.45)), (po + 30, (0.7, 1.0)), (vt, (0.5, 1
          "codigo": """
 P.salao()
 s = P.suspeitos(F)
+s['br_primeira_dama'].falar(T.get('l1', 1), T.get('l1_fim', 1))
 nomes = ['primeiradama', 'medica', 'secretario', 'copeira', 'guarda', 'coronel']
 ini = T.get('p_a', int(F*0.12))
 marc = [T.get('p_' + n, int(F*(0.14 + 0.07*k))) for k, n in enumerate(nomes)]
@@ -150,7 +153,8 @@ M.tremer_camera(tr + 2, tr + 16, 0.03)
 """},
         # 9 - o livro da portaria: voce chega no balcao e se debruca
         {"hud": "FALTAM 1H08", "amb": DENTRO + ["coracao", "tensao"], "nota": "Alguém assinou o MEU nome às 1h52",
-         "linhas": [("fundo", "passos_longos"),
+         "linhas": [("fundo", "rangido"),
+                    ("fundo", "passos_longos"),
                     ("narrador", "Você corre até a portaria pra ver quem entrou essa noite."),
                     ("som", "pagina"),
                     ("narrador", "A última assinatura antes do crime é de uma e cinquenta e dois. E o nome é o *seu*."),

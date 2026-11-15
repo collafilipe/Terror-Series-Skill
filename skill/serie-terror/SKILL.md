@@ -90,6 +90,11 @@ Registre cada decisão em `series/<slug>/estado.json` e cada lição nova em `GU
 - Sem música, mas com **som de tudo**: 2 camadas de ambiente por cena + sons de passos, portas, objetos e sustos,
   em volume baixo. Usar `("fundo", nome)` e `"sons_em"` para não alongar o vídeo. Lista completa no guia.
 
+## Personagens em cena (regra do usuário)
+- Quando um personagem fala, **a boca mexe**: `boneco.falar(T['lK'], T['lK_fim'])`.
+- Nunca mostrar parte do corpo solta (braço sem corpo): o personagem inteiro tem que existir na cena.
+- Toda ação tem som (porta, portão, passos, chuva, objetos).
+
 ## Recursos prontos no gerador
 - Caderno: `"nota": "..."` + `("som", "lapis")` na cena; recapitulação com `"caderno_cheio": True`.
 - Opções narradas: a última fala do narrador com "Opção A: ... Opção B: ..." sincroniza a tela de escolha sozinha.

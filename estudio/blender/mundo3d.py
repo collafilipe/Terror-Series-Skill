@@ -1065,7 +1065,7 @@ KTIPOS = {  # tipo -> (letra do personagem, textura alternativa)
     "br_detetive": ("c", "texture-br_detetive.png"), "br_coronel": ("c", "texture-br_coronel.png"),
     "br_primeira_dama": ("c", "texture-br_primeira_dama.png"), "br_medica": ("c", "texture-br_medica.png"),
     "br_secretario": ("c", "texture-br_secretario.png"), "br_copeira": ("c", "texture-br_copeira.png"),
-    "br_cabo": ("c", "texture-br_cabo.png"),
+    "br_cabo": ("c", "texture-br_cabo.png"), "br_presidente": ("c", "texture-br_presidente.png"),
 }
 KANIM = {"andar": "walk", "correr": "sprint", "parado": "static", "balancar": "idle", "comemorar": "emote-yes", "acenar": "emote-yes",
          "sim": "emote-yes", "nao": "emote-no", "susto": "emote-no", "apontar": "interact-right", "cavar": "pick-up",
@@ -1118,7 +1118,64 @@ class KBoneco(Boneco):  # noqa: F811
                         for n in m.node_tree.nodes:
                             if n.type == "TEX_IMAGE":
                                 n.image = img
+        self._textura = textura
+        self._novos = novos
+        self._boca = None
         self._anim("parado", 1, 1)
+
+    def falar(self, f0, f1, seed=0):
+        """A boca abre e fecha entre os quadros f0 e f1 (use as marcas T['lK'] e T['lK_fim'] da fala).
+        Precisa da skin com boca aberta: texture-br_<nome>_fala.png (feita por fazer_skins.py)."""
+        if not self._textura:
+            return self
+        arq = os.path.join(KCHARS, "Textures", self._textura.replace(".png", "_fala.png"))
+        if not os.path.exists(arq):
+            return self
+        if self._boca is None:
+            self._boca = []
+            img = bpy.data.images.load(arq, check_existing=True)
+            vistos = set()
+            for o in self._novos:
+                for slot in getattr(o, "material_slots", []):
+                    m = slot.material
+                    if not m or not m.use_nodes or m.name in vistos:
+                        continue
+                    vistos.add(m.name)
+                    nt = m.node_tree
+                    tex = next((n for n in nt.nodes if n.type == "TEX_IMAGE"), None)
+                    if tex is None:
+                        continue
+                    t2 = nt.nodes.new("ShaderNodeTexImage")
+                    t2.image = img
+                    t2.interpolation = tex.interpolation
+                    for lk in list(tex.inputs["Vector"].links):
+                        nt.links.new(lk.from_socket, t2.inputs["Vector"])
+                    mix = nt.nodes.new("ShaderNodeMixRGB")
+                    mix.inputs[0].default_value = 0.0
+                    for lk in list(tex.outputs["Color"].links):
+                        nt.links.new(mix.outputs[0], lk.to_socket)
+                    nt.links.new(tex.outputs["Color"], mix.inputs[1])
+                    nt.links.new(t2.outputs["Color"], mix.inputs[2])
+                    self._boca.append((nt, mix))
+        r = random.Random(int(f0) + seed)
+        for nt, mix in self._boca:
+            fac = mix.inputs[0]
+            fac.default_value = 0.0
+            fac.keyframe_insert("default_value", frame=max(0, int(f0) - 1))
+            f, aberta = int(f0), True
+            while f < int(f1):
+                fac.default_value = 1.0 if aberta else 0.0
+                fac.keyframe_insert("default_value", frame=f)
+                f += r.choice([3, 3, 4, 5]) if aberta else r.choice([2, 3, 3, 4])
+                aberta = not aberta
+            fac.default_value = 0.0
+            fac.keyframe_insert("default_value", frame=int(f1))
+            ad = nt.animation_data
+            if ad and ad.action:
+                for fc in getattr(ad.action, "fcurves", []):
+                    for kp in fc.keyframe_points:
+                        kp.interpolation = "CONSTANT"
+        return self
 
     def _anim(self, acao, f0, f1):
         nome = KANIM.get(acao, acao)

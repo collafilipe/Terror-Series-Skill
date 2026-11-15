@@ -10,6 +10,7 @@ Plano (arquivo .py com um dict PLANO):
   cenas: [{hud, amb: [chuva, zumbido, grilos, tique, coracao, ronco], linhas: [(quem, texto) ...], codigo}]
   linhas: ("narrador"|personagem de drama.PERSONAGENS, "texto com *destaque*"), ("som", nome), ("pausa", segundos),
           ("fundo", nome) = som que toca por baixo, sem segurar a narracao
+  boca mexendo: boneco.falar(T['l2'], T['l2_fim'])  (T['lK_fim'] = quadro em que a fala K termina)
   sons_em: [("palavra", nome)] = som no instante em que o narrador diz a palavra
   amb (camadas continuas): chuva, chuva_forte, vento, trovoada, zumbido, bipes, tique, grilos, coracao, tensao, ronco, motor
   No codigo 3D: F = quadros da cena; T = quadro de cada evento ("som" pelo nome, falas como "l0", "l1"...).
@@ -57,7 +58,7 @@ SONS = {  # nome -> (funcao, tempo que o roteiro avanca)
     "lapis": (lambda: D.lapis(1.2), 1.8),      # o caderno aparece e a pista e anotada
     "luz_cai": (lambda: D.luz_cai(), 0.9),
     "alarme": (lambda: D.alarme(2), 1.2),
-    "portao": (lambda: D.portao(), 1.6),
+    "portao": (lambda: D.portao(3.0) * 1.6, 1.6),      # motor, metal correndo e a batida no fim
     "portao_fundo": (lambda: D.portao(), 0.5),      # a narracao segue por cima
     "tique_para": (lambda: D.tique_para(4), 0.5),
     "passos_marmore": (lambda: D.passos_marmore(4), 1.6),
@@ -104,6 +105,7 @@ def montar_cena_audio(cena, i, pasta, ultima):
             m.add(audio, t, 1.0)
             legendas.append((t, t + len(audio) / SR, quem,
                              [(t + a, t + b, p, base.norm(p) in destaque and base.norm(p) != "") for a, b, p in palavras]))
+            marcas[f"l{k}_fim"] = int((t + len(audio) / SR) * FPS)
             t += len(audio) / SR + (0.32 if quem.startswith("narrador") else 0.22)
     for palavra, nome in cena.get("sons_em", []):   # som no instante em que o narrador diz a palavra
         quando = [a for _, _, quem, pal in legendas for a, _, p, _ in pal if base.norm(p) == base.norm(palavra)]

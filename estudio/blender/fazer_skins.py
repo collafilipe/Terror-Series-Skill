@@ -190,6 +190,14 @@ def pintar(nome, pele, cabelo, camisa, calca, sapato=(40, 40, 46), cabelo_tipo="
         d.rectangle([px, 988, px + 255, 1023], fill=sapato)
         d.rectangle([px, 1012, px + 255, 1023], fill=(235, 235, 235) if sapato[0] > 150 else esc(sapato, 0.6))
     im.save(PASTA / f"texture-br_{nome}.png")
+    if rosto:   # mesma skin com a boca aberta: o boneco alterna as duas enquanto fala (KBoneco.falar)
+        fala = im.copy()
+        df = ImageDraw.Draw(fala)
+        y0 = 108 if bigode else 98
+        df.rounded_rectangle([128 + 47, 128 + y0, 128 + 81, 128 + y0 + 20], radius=8, fill=(58, 18, 22),
+                             outline=batom or esc(pele, 0.55), width=3)
+        df.rounded_rectangle([128 + 54, 128 + y0 + 11, 128 + 74, 128 + y0 + 18], radius=4, fill=(196, 84, 90))
+        fala.save(PASTA / f"texture-br_{nome}_fala.png")
     return im
 
 
@@ -220,6 +228,8 @@ ELENCO = {
     # --- O Relojoeiro
     "detetive": dict(serio=True, pele=P_PARDA, cabelo=CASTANHO, camisa=(178, 150, 110), calca=(58, 60, 70), detalhe="terno",
                      cor2=(120, 30, 40), manga="longa", sapato=(50, 36, 28)),
+    "presidente": dict(serio=True, pele=P_CLARA, cabelo=GRISALHO, camisa=(28, 36, 64), calca=(28, 36, 64), detalhe="terno",
+                       manga="longa", sapato=(20, 20, 24)),
     "coronel": dict(serio=True, pele=P_MORENA, cabelo=GRISALHO, camisa=(50, 72, 50), calca=(50, 72, 50), detalhe="farda",
                     cor2=(222, 184, 70), manga="longa", bigode=(130, 130, 136)),
     "primeira_dama": dict(serio=True, pele=P_CLARA, cabelo=PRETO, camisa=(26, 26, 32), calca=(26, 26, 32), cabelo_tipo="longo",
