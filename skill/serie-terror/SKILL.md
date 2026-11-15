@@ -5,7 +5,7 @@ description: Cria e continua séries de terror em capítulos para Shorts/Reels (
 
 # Séries de terror em capítulos
 
-Tudo fica em `<pasta do MoneyPrinterTurbo>\estudio`. **Antes de qualquer coisa, leia `GUIA_PRODUCAO.md`**
+Tudo fica em `C:\Users\Filipe\MoneyPrinterTurbo\estudio`. **Antes de qualquer coisa, leia `GUIA_PRODUCAO.md`**
 nessa pasta: ele lista o que o usuário aprovou, o que reprovou e as lições de cada capítulo.
 A referência de qualidade é `series/ultima_parada/` (capítulo aprovado com entusiasmo).
 
@@ -49,6 +49,17 @@ Registre cada decisão em `series/<slug>/estado.json` e cada lição nova em `GU
 4. Siga os passos 2 a 5 do Modo 1 para o capítulo N. O capítulo abre lembrando a escolha do público em uma
    frase e mostrando a consequência. Reaproveite o cenário e as mesmas vozes dos personagens.
 5. Atualize o `estado.json`: `escolha_do_publico` do capítulo anterior e o capítulo novo.
+
+## Narrador (regra do usuário)
+- O narrador conduz: antes de cada fala, ele diz quem fala e em que situação ("O motorista nem olha pra você. Só avisa:").
+- Ele conta o que o protagonista pensa e conclui, e explica na hora cada termo ou regra nova.
+- Nunca duas falas de personagens seguidas sem o narrador situando. Quem só ouve o áudio precisa entender tudo.
+
+## Clareza (regra do usuário)
+- No dilema final, o narrador lê as opções A e B em voz alta, com o que cada uma significa e a consequência provável.
+- Séries de investigação têm o **caderno do detetive**: cada pista vira uma anotação na tela, e antes do dilema há uma
+  cena de recapitulação com o caderno aberto. Em outras séries, o equivalente é a lista de regras descobertas.
+- Escreva para uma pessoa leiga e distraída: frases simples, uma informação por frase, nada sem explicação.
 
 ## Elenco (regra do usuário)
 - O boneco em bloco (estilo Roblox) continua sempre. O que muda é a **skin**, pintada em `blender/fazer_skins.py`.

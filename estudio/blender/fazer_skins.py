@@ -20,7 +20,8 @@ def esc(c, f):
 
 
 def pintar(nome, pele, cabelo, camisa, calca, sapato=(40, 40, 46), cabelo_tipo="curto", rosto=True, bigode=None,
-           barba=None, oculos=False, batom=None, manga="curta", calca_tipo="longa", detalhe=None, cor2=None):
+           barba=None, oculos=False, batom=None, manga="curta", calca_tipo="longa", detalhe=None, cor2=None,
+           serio=False):
     im = Image.new("RGB", (1024, 1024), FUNDO)
     d = ImageDraw.Draw(im)
     sombra = esc(pele, 0.86)
@@ -74,7 +75,10 @@ def pintar(nome, pele, cabelo, camisa, calca, sapato=(40, 40, 46), cabelo_tipo="
         if bigode:
             d.rounded_rectangle([fx + 36, fy + 94, fx + 92, fy + 106], radius=6, fill=bigode)
         else:
-            d.arc([fx + 46, fy + 92, fx + 82, fy + 112], 20, 160, fill=batom or esc(pele, 0.55), width=5)
+            if serio:   # boca reta e sobrancelha franzida (suspense)
+                d.rounded_rectangle([fx + 48, fy + 102, fx + 80, fy + 108], radius=3, fill=batom or esc(pele, 0.55))
+            else:
+                d.arc([fx + 46, fy + 92, fx + 82, fy + 112], 20, 160, fill=batom or esc(pele, 0.55), width=5)
         if oculos:
             for ex in (38, 90):
                 d.rounded_rectangle([fx + ex - 17, fy + 56, fx + ex + 17, fy + 88], radius=8, outline=(30, 30, 34), width=5)
@@ -128,6 +132,47 @@ def pintar(nome, pele, cabelo, camisa, calca, sapato=(40, 40, 46), cabelo_tipo="
         d.line([(tx + 64, ty + 24), (tx + 64, ty + 120)], fill=c2, width=4)
         for k in (40, 66, 92):
             d.ellipse([tx + 60, ty + k, tx + 68, ty + k + 8], fill=(240, 240, 240))
+    elif detalhe == "terno":      # terno ou sobretudo: camisa branca, gravata e lapelas
+        d.polygon([(tx + 40, ty), (tx + 88, ty), (tx + 64, ty + 78)], fill=(240, 240, 244))
+        d.polygon([(tx + 58, ty + 6), (tx + 70, ty + 6), (tx + 73, ty + 62), (tx + 64, ty + 74), (tx + 55, ty + 62)], fill=c2)
+        d.line([(tx + 38, ty), (tx + 64, ty + 80)], fill=esc(camisa, 0.72), width=9)
+        d.line([(tx + 90, ty), (tx + 64, ty + 80)], fill=esc(camisa, 0.72), width=9)
+        for k in (92, 112):
+            d.ellipse([tx + 59, ty + k, tx + 69, ty + k + 10], fill=esc(camisa, 0.55))
+        d.rectangle([tx + 12, ty + 96, tx + 40, ty + 102], fill=esc(camisa, 0.75))
+        d.rectangle([tx + 88, ty + 96, tx + 116, ty + 102], fill=esc(camisa, 0.75))
+    elif detalhe == "farda":
+        d.polygon([(tx + 46, ty), (tx + 82, ty), (tx + 64, ty + 20)], fill=pele)
+        d.line([(tx + 64, ty + 20), (tx + 64, ty + 100)], fill=esc(camisa, 0.7), width=4)
+        for bx0 in (14, 84):
+            d.rectangle([tx + bx0, ty + 34, tx + bx0 + 30, ty + 62], fill=esc(camisa, 0.85))
+            d.rectangle([tx + bx0, ty + 34, tx + bx0 + 30, ty + 42], fill=esc(camisa, 0.7))
+        for k, cor_m in enumerate(((200, 40, 40), c2, (60, 110, 200))):
+            d.rectangle([tx + 16 + k * 10, ty + 18, tx + 24 + k * 10, ty + 30], fill=cor_m)
+        d.rectangle([0, 892, 447, 910], fill=(26, 26, 30))
+        d.rectangle([tx + 54, 888, tx + 74, 914], fill=c2)
+        d.rectangle([0, 784, 30, 796], fill=c2); d.rectangle([224, 784, 254, 796], fill=c2)
+    elif detalhe == "vestido":
+        d.ellipse([tx + 26, ty - 36, tx + 102, ty + 36], fill=pele)
+        for k in range(9):
+            import math as _m
+            a = _m.radians(20 + k * 17.5)
+            d.ellipse([tx + 64 + 40 * _m.cos(a) - 5, ty + 2 + 30 * _m.sin(a) - 5, tx + 64 + 40 * _m.cos(a) + 5, ty + 2 + 30 * _m.sin(a) + 5],
+                      fill=(240, 240, 235))
+    elif detalhe == "jaleco":
+        d.polygon([(tx + 38, ty), (tx + 90, ty), (tx + 64, ty + 84)], fill=c2)
+        d.polygon([(tx + 50, ty), (tx + 78, ty), (tx + 64, ty + 22)], fill=pele)
+        d.line([(tx + 36, ty), (tx + 64, ty + 86)], fill=(205, 205, 212), width=8)
+        d.line([(tx + 92, ty), (tx + 64, ty + 86)], fill=(205, 205, 212), width=8)
+        d.rectangle([tx + 84, ty + 58, tx + 112, ty + 88], outline=(190, 190, 198), width=4)
+        d.rectangle([tx + 92, ty + 46, tx + 97, ty + 66], fill=(40, 80, 170))
+        d.arc([tx + 30, ty + 4, tx + 98, ty + 70], 20, 160, fill=(90, 96, 104), width=6)
+    elif detalhe == "avental":
+        d.polygon([(tx + 46, ty), (tx + 82, ty), (tx + 64, ty + 20)], fill=(240, 240, 244))
+        d.rectangle([tx + 26, ty + 34, tx + 102, ty + 122], fill=(240, 240, 244))
+        d.line([(tx + 26, ty + 34), (tx + 46, ty)], fill=(240, 240, 244), width=8)
+        d.line([(tx + 102, ty + 34), (tx + 82, ty)], fill=(240, 240, 244), width=8)
+        d.rectangle([tx + 46, ty + 70, tx + 82, ty + 96], outline=(200, 200, 208), width=4)
     # ---------------- bracos e pernas
     for bx in (480, 768):
         d.rectangle([bx + 64, 534, bx + 127, 597], fill=camisa)
@@ -172,6 +217,22 @@ ELENCO = {
                   oculos=True, detalhe="xadrez", cor2=(250, 235, 210), manga="longa", sapato=(90, 60, 40)),
     "porteiro": dict(pele=P_NEGRA, cabelo=PRETO, camisa=(235, 235, 240), calca=PRETO_C, detalhe="botoes",
                      cor2=(170, 170, 180), manga="longa"),
+    # --- O Relojoeiro
+    "detetive": dict(serio=True, pele=P_PARDA, cabelo=CASTANHO, camisa=(178, 150, 110), calca=(58, 60, 70), detalhe="terno",
+                     cor2=(120, 30, 40), manga="longa", sapato=(50, 36, 28)),
+    "coronel": dict(serio=True, pele=P_MORENA, cabelo=GRISALHO, camisa=(50, 72, 50), calca=(50, 72, 50), detalhe="farda",
+                    cor2=(222, 184, 70), manga="longa", bigode=(130, 130, 136)),
+    "primeira_dama": dict(serio=True, pele=P_CLARA, cabelo=PRETO, camisa=(26, 26, 32), calca=(26, 26, 32), cabelo_tipo="longo",
+                          detalhe="vestido", batom=(180, 30, 50), sapato=(26, 26, 32)),
+    "medica": dict(serio=True, pele=P_NEGRA, cabelo=PRETO, camisa=(240, 240, 244), calca=(60, 130, 150), cabelo_tipo="cacheado",
+                   detalhe="jaleco", cor2=(60, 150, 165), manga="longa", oculos=True, batom=(150, 50, 60),
+                   sapato=(235, 235, 235)),
+    "secretario": dict(serio=True, pele=P_CLARA, cabelo=GRISALHO, camisa=(104, 108, 118), calca=(104, 108, 118), cabelo_tipo="careca",
+                       detalhe="terno", cor2=(30, 60, 120), manga="longa", oculos=True),
+    "copeira": dict(serio=True, pele=P_NEGRA, cabelo=GRISALHO, camisa=(44, 48, 66), calca=(44, 48, 66), detalhe="avental",
+                    batom=(140, 60, 60)),
+    "cabo": dict(serio=True, pele=P_PARDA, cabelo=PRETO, camisa=(72, 98, 68), calca=(72, 98, 68), detalhe="farda",
+                 cor2=(200, 170, 70)),
     "jovem_mulher": dict(pele=P_PARDA, cabelo=CASTANHO, camisa=(60, 160, 140), calca=JEANS, cabelo_tipo="longo",
                          batom=(190, 70, 90), detalhe="gola_v", cor2=(240, 240, 240), sapato=(235, 235, 235)),
 }

@@ -29,6 +29,10 @@ PERSONAGENS = {
     "mulher_radio": ("pt-BR-ThalitaMultilingualNeural", "+0%", "+0Hz", RADIO),
     "crianca_interfone": ("pt-BR-ThalitaMultilingualNeural", "-6%", "+38Hz", INTERFONE),
     "crianca": ("pt-BR-ThalitaMultilingualNeural", "-6%", "+38Hz", None),
+    # O Relojoeiro
+    "detetive": ("pt-BR-AntonioNeural", "-4%", "-4Hz", None),
+    "coronel": ("en-US-AndrewMultilingualNeural", "-4%", "-8Hz", None),
+    "primeira_dama": ("pt-BR-FranciscaNeural", "-4%", "-4Hz", None),
 }
 
 
@@ -252,6 +256,111 @@ def motor(dur):
     r = _passa_baixa(_rng.normal(0, 1, len(t)), 300) * 5
     m = np.sin(2 * np.pi * 48 * t) * 0.7 + np.sin(2 * np.pi * 96 * t) * 0.3 + np.sin(2 * np.pi * 31 * t) * 0.3
     return (m * (0.85 + 0.15 * np.sin(2 * np.pi * 0.5 * t)) + r) * 0.12
+
+
+def chuva_forte(dur):
+    """Chuva pesada batendo em janela, com rajadas de vento."""
+    n = int(dur * SR)
+    t = _t(dur)
+    r = _rng.normal(0, 1, n)
+    agudo = r - _passa_baixa(r, 10)
+    grave = _passa_baixa(_rng.normal(0, 1, n), 160) * 5
+    rajada = 0.7 + 0.3 * np.sin(2 * np.pi * 0.09 * t + 0.7) * np.sin(2 * np.pi * 0.23 * t)
+    return (agudo * 0.05 + grave * 0.035) * rajada
+
+
+def trovao(dur=3.2):
+    """Estalo curto seguido de um ronco grave que rola e some."""
+    n = int(dur * SR)
+    t = _t(dur)
+    ronco = _passa_baixa(_rng.normal(0, 1, n), 420) * 14
+    ronco *= (0.55 + 0.45 * np.sin(2 * np.pi * 2.3 * t + 1) * np.sin(2 * np.pi * 0.9 * t)) * np.exp(-t * 1.1)
+    estalo = _rng.normal(0, 1, n)
+    estalo = (estalo - _passa_baixa(estalo, 30)) * np.exp(-t * 16) * 0.5
+    sub = np.sin(2 * np.pi * 38 * t) * np.exp(-t * 1.6) * 0.5
+    return (ronco + estalo + sub) * 0.5 * np.minimum(1, t / 0.01)
+
+
+def pagina(dur=0.55):
+    """Folha de papel virando."""
+    n = int(dur * SR)
+    t = _t(dur)
+    r = _rng.normal(0, 1, n)
+    r = r - _passa_baixa(r, 5)
+    env = np.exp(-((t - 0.16) ** 2) / (2 * 0.07 ** 2)) + 0.6 * np.exp(-((t - 0.4) ** 2) / (2 * 0.04 ** 2))
+    return r * env * 0.1
+
+
+def lapis(dur=1.3):
+    """Lapis riscando o papel: tracos curtos e irregulares."""
+    n = int(dur * SR)
+    t = _t(dur)
+    r = _rng.normal(0, 1, n)
+    r = _passa_baixa(r - _passa_baixa(r, 4), 2)
+    env = np.zeros(n)
+    s = 0.02
+    rr = np.random.default_rng(5)
+    while s < dur - 0.12:
+        L = rr.uniform(0.07, 0.16)
+        i, j = int(s * SR), int(min(dur, s + L) * SR)
+        env[i:j] = np.hanning(j - i) * rr.uniform(0.6, 1.0)
+        s += L + rr.uniform(0.02, 0.09)
+    return r * env * 0.16
+
+
+def luz_cai():
+    """Estalo eletrico da luz caindo, com o zumbido morrendo."""
+    t = _t(0.9)
+    cl = _rng.normal(0, 1, len(t)) * np.exp(-t * 60) * 0.5
+    z = np.sin(2 * np.pi * np.cumsum(np.linspace(120, 35, len(t))) / SR) * np.exp(-t * 5) * 0.35
+    return cl + z
+
+
+def alarme(toques=2):
+    """Alarme curto de alerta (dois tons graves)."""
+    out = []
+    for _ in range(toques):
+        t = _t(0.42)
+        out += [(np.sin(2 * np.pi * 620 * t) + 0.5 * np.sin(2 * np.pi * 930 * t)) * np.hanning(len(t)) * 0.11,
+                np.zeros(int(0.2 * SR))]
+    return np.concatenate(out)
+
+
+def portao(dur=2.2):
+    """Portao pesado de metal correndo e batendo no fim."""
+    n = int(dur * SR)
+    t = _t(dur)
+    r = _passa_baixa(_rng.normal(0, 1, n), 60) * 4 * (0.7 + 0.3 * np.sin(2 * np.pi * 9 * t))
+    corpo = (r + np.sin(2 * np.pi * 62 * t) * 0.5) * np.minimum(1, t / 0.2) * (t < dur - 0.35) * 0.1
+    tb = np.clip(t - (dur - 0.35), 0, None)
+    batida = (np.sin(2 * np.pi * 70 * tb) + 0.4 * np.sin(2 * np.pi * 310 * tb)) * np.exp(-tb * 14) * (t >= dur - 0.35) * 0.4
+    return corpo + batida
+
+
+def tique_para(n_tiques=4):
+    """Som-assinatura: o tique de um relogio que para de repente."""
+    out = np.zeros(int((n_tiques * 0.5 + 0.2) * SR))
+    L = int(0.02 * SR)
+    for k in range(n_tiques):
+        f = 2400 if k % 2 == 0 else 1900
+        c = np.sin(2 * np.pi * f * np.arange(L) / SR) * np.hanning(L) * 0.22
+        i = int(k * 0.5 * SR)
+        out[i:i + L] += c
+    return out
+
+
+def passos_marmore(n_passos=4, intervalo=0.5):
+    """Passos de sapato em piso duro, com um pouco de eco."""
+    out = np.zeros(int((n_passos * intervalo + 0.5) * SR))
+    L = int(0.07 * SR)
+    tp = np.arange(L) / SR
+    for k in range(n_passos):
+        p = (_rng.normal(0, 1, L) * 0.6 + np.sin(2 * np.pi * 900 * tp) + np.sin(2 * np.pi * 210 * tp)) * np.exp(-tp * 70)
+        i = int(k * intervalo * SR)
+        out[i:i + L] += p * 0.16
+        j = i + int(0.11 * SR)
+        out[j:j + L] += p * 0.05
+    return out
 
 
 # ------------------------------------------------------------------ mixagem

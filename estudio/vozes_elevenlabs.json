@@ -58,5 +58,23 @@
     "nome": "Laura",
     "stability": 0.35,
     "style": 0.45
+  },
+  "detetive": {
+    "voice_id": "cjVigY5qzO86Huf0OWal",
+    "nome": "Eric",
+    "stability": 0.45,
+    "style": 0.3
+  },
+  "coronel": {
+    "voice_id": "pNInz6obpgDQGcFmaJgB",
+    "nome": "Adam",
+    "stability": 0.5,
+    "style": 0.3
+  },
+  "primeira_dama": {
+    "voice_id": "Xb7hH8MSUJpSbSDYk0k2",
+    "nome": "Alice",
+    "stability": 0.5,
+    "style": 0.3
   }
 }

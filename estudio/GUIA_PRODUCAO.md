@@ -83,3 +83,22 @@ Atualizado em 15/11/2026. Leia antes de produzir um capítulo novo.
   (tons de pele variados, roupas do dia a dia daqui). Criar as skins em `fazer_skins.py` antes de produzir.
 - **Continuação = mesmo elenco:** os personagens que já existem usam exatamente as mesmas skins (ver `elenco` no
   `estado.json` da série). Só se cria skin nova quando entra um personagem novo na história.
+
+## Narrador conduz a história (pedido do usuário em 16/11/2026)
+No capítulo do ônibus o espectador ficou perdido: as falas apareciam "jogadas", sem dizer quem falava nem por quê.
+- O narrador APRESENTA cada fala antes dela: quem fala, para quem e em que situação.
+  Ex.: "O motorista nem olha pra você. Só avisa:" e então a fala do motorista.
+- O narrador diz o que o protagonista PENSA e conclui ("Você faz a conta de cabeça: se desceu um, deviam ser cinco").
+- Todo termo ou regra nova é explicado na hora, em uma frase (o que é a "parada", o que significa o relógio parado).
+- Nunca deixar duas falas de personagens seguidas sem uma linha do narrador situando.
+- Teste antes de aprovar o roteiro: alguém que só OUVE o áudio, sem ver a tela, entende quem é quem e o que aconteceu?
+
+## Clareza para quem nunca viu a série (pedido do usuário em 16/11/2026)
+- **Opções narradas:** no dilema final, o narrador LÊ as duas opções em voz alta, cada uma com o que significa e o
+  que pode acontecer ("Opção A: mostrar o livro ao coronel. É o certo, mas você vira o principal suspeito.").
+  Termina com "O que você faz? Comenta A ou B."
+- **Caderno de pistas:** em séries de investigação, cada pista descoberta aparece anotada num caderninho na tela
+  (frase curta, numerada). Antes do dilema, uma cena de recapitulação: o caderno aberto e o narrador repassando tudo.
+  Em séries sem investigação, usar o equivalente (lista de regras descobertas).
+- **Linguagem:** escrever para uma pessoa leiga e distraída. Frases simples, uma informação por frase, sem termo
+  técnico sem explicação. Se a pessoa perder 5 segundos do vídeo, ainda precisa entender o que está acontecendo.

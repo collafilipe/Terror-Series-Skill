@@ -1062,6 +1062,10 @@ KTIPOS = {  # tipo -> (letra do personagem, textura alternativa)
     "br_trocado": ("c", "texture-br_trocado.png"), "br_torcedor": ("c", "texture-br_torcedor.png"),
     "br_moca": ("c", "texture-br_moca.png"), "br_idoso": ("c", "texture-br_idoso.png"),
     "br_porteiro": ("c", "texture-br_porteiro.png"), "br_jovem_mulher": ("c", "texture-br_jovem_mulher.png"),
+    "br_detetive": ("c", "texture-br_detetive.png"), "br_coronel": ("c", "texture-br_coronel.png"),
+    "br_primeira_dama": ("c", "texture-br_primeira_dama.png"), "br_medica": ("c", "texture-br_medica.png"),
+    "br_secretario": ("c", "texture-br_secretario.png"), "br_copeira": ("c", "texture-br_copeira.png"),
+    "br_cabo": ("c", "texture-br_cabo.png"),
 }
 KANIM = {"andar": "walk", "correr": "sprint", "parado": "static", "balancar": "idle", "comemorar": "emote-yes", "acenar": "emote-yes",
          "sim": "emote-yes", "nao": "emote-no", "susto": "emote-no", "apontar": "interact-right", "cavar": "pick-up",
