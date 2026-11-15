@@ -2,7 +2,7 @@
 Cenarios de O RELOJOEIRO (Palacio das Aguas). Usado no codigo das cenas como P (junto com M = mundo3d).
 Medidas em metros, chao em z=0, camera padrao olhando para +Y. Bonecos em pe: rosto em z ~1.45.
 
-  P.gabinete(raios=[quadros])            mesa, estante, janela com chuva, poltrona de costas e a mao caida com o relogio
+  P.gabinete(raios=[quadros])            mesa, estante, janela com chuva, presidente sentado de perfil, braco direito caido com o relogio
                                          (P.RELOGIO = centro do mostrador, virado para -Y)
   P.corredor(alerta=f, grade=(f0, f1))   corredor de marmore de y=-6 a 16; porta do gabinete no fundo (y=16)
   P.sala_cameras(f_pulo)                 parede de monitores em y=3; no quadro f_pulo todas pulam de 02:10 para 02:17
@@ -167,8 +167,9 @@ def maos_com_livro(x, y, z=1.12, aberto=True):
 
 # ------------------------------------------------------------------ gabinete
 def gabinete(raios=()):
-    """Gabinete do presidente: x -4..4, y -3..5. Poltrona de costas para a camera em (0, 2.3); a mao caida com o
-    relogio fica do lado direito dela. Mesa encostada perto da janela (y 3.2..4.2)."""
+    """Gabinete do presidente: x -4..4, y -3..5. O presidente fica sentado de perfil em (0, 2.3), virado para +X; o braco direito cai do ombro com o
+    relogio (P.RELOGIO e recalculado aqui). Mesa encostada perto da janela (y 3.2..4.2)."""
+    global RELOGIO
     _inicio()
     g = M.grupo("Gabinete")
     _sala(g, -4, 4, -3, 5, 3.4, "#2f4a44", lambri=MADEIRA)
@@ -190,32 +191,43 @@ def gabinete(raios=()):
     M.cilindro(0.02, 0.4, (-0.9, 3.7, 0.84), OURO, 8, pai=g)
     M.cilindro(0.2, 0.2, (-0.9, 3.7, 1.22), "#2f6a4a", 12, raio_topo=0.11, pai=g, material=M.mat("#3f8a5a", emissao=1.2))
     M._luz_ponto((-0.9, 3.4, 1.15), 70, "#ffd9a0", g)
-    # poltrona de costas para a camera (esconde o corpo)
+    # poltrona de lado para a porta: o presidente fica de perfil, virado para +X, e o braco direito dele (o lado da
+    # camera) cai reto do ombro, colado no tronco, com o relogio no pulso
     couro = "#4a1418"
-    M.caixa((0.86, 0.8, 0.14), (0, 2.3, 0.5), couro, g)
-    M.caixa((0.8, 0.16, 1.4), (0, 1.9, 1.08), couro, g)
-    for dx in (-0.42, 0.42):
-        M.caixa((0.12, 0.74, 0.34), (dx, 2.3, 0.72), couro, g)
+    M.caixa((0.8, 0.42, 0.14), (0.0, 2.3, 0.5), couro, g)                 # assento estreito: o braco passa por fora
+    M.caixa((0.16, 0.8, 1.4), (-0.4, 2.3, 1.08), couro, g)                # encosto (atras dele, em -X)
+    M.caixa((0.74, 0.12, 0.34), (0.0, 2.72, 0.72), couro, g)              # braco da poltrona so do lado da janela
     M.cilindro(0.3, 0.06, (0, 2.3, 0.0), "#222226", 10, pai=g)
     M.cilindro(0.05, 0.42, (0, 2.3, 0.04), "#222226", 8, pai=g)
-    # o presidente, sentado de frente para a janela (de costas para a porta), com o braco direito caido
-    pres = M.Boneco("br_presidente", (0, 2.3), olhar=180)
-    pres.parado(1, bpy.context.scene.frame_end, "sentar", olhar=180)
-    # o braco direito do modelo some: no lugar dele fica o braco caido com o relogio (senao ele fica com dois)
+    pres = M.Boneco("br_presidente", (0, 2.3), olhar=90)
+    pres.parado(1, bpy.context.scene.frame_end, "sentar", olhar=90)
+    # mede o tronco e o braco do modelo para o braco caido nascer exatamente no ombro
+    bpy.context.scene.frame_set(1)
     bpy.context.view_layer.update()
+
+    def caixa_de(o):
+        pts = [o.matrix_world @ M.Vector(c) for c in o.bound_box]
+        return [(min(q[k] for q in pts), max(q[k] for q in pts)) for k in range(3)]
+
     bracos = [o for o in pres._novos if o.name.startswith("arm-")]
-    if bracos:
-        direito = max(bracos, key=lambda o: o.matrix_world.translation.x)
-        direito.hide_render = True
+    tronco = next((o for o in pres._novos if o.name.startswith("torso")), None)
+    ax, ay, topo, larg = 0.0, 2.0, 1.1, 0.17
+    if bracos and tronco is not None:
+        direito = min(bracos, key=lambda o: sum(caixa_de(o)[1]) / 2)       # o do lado da camera (menor y)
+        bt, bb = caixa_de(tronco), caixa_de(direito)
+        ax = sum(bt[0]) / 2
+        larg = max(0.13, min(0.2, bb[1][1] - bb[1][0]))
+        ay = bt[1][0] - larg / 2                                           # encostado na lateral do tronco
+        topo = bt[2][1] - 0.02                                             # altura do ombro
+        direito.hide_render = True                                         # senao ele fica com dois bracos direitos
         direito.hide_viewport = True
-    M.caixa((0.44, 0.17, 0.17), (0.47, RELOGIO[1] + 0.1, 0.99), "#1c2440", g, rot=(0, math.radians(8), 0))   # do ombro ate o braco da poltrona
-    # o braco caido, com o relogio
-    x, y = RELOGIO[0], RELOGIO[1] + 0.1
-    M.caixa((0.17, 0.17, 0.46), (x, y, 0.86), "#1c2440", g)
-    M.caixa((0.18, 0.18, 0.05), (x, y, 0.645), "#f2efe6", g)
-    M.caixa((0.185, 0.185, 0.09), (x, y, RELOGIO[2]), "#3a2416", g)
-    M.caixa((0.14, 0.15, 0.2), (x, y, 0.435), "#c98f6a", g)
-    M.quadro_imagem("relogio_440.png", (x, y - 0.096, RELOGIO[2]), 0.17, 0.17, rot=(90, 0, 0), emissao=0.25, pai=g)
+    RELOGIO = (ax, ay - 0.1, topo - 0.55)
+    M.caixa((larg, larg, 0.47), (ax, ay, topo - 0.235), "#1c2440", g)                 # manga, do ombro para baixo
+    M.caixa((larg + 0.01, larg + 0.01, 0.05), (ax, ay, topo - 0.49), "#f2efe6", g)    # punho da camisa
+    M.caixa((larg + 0.015, larg + 0.015, 0.09), (ax, ay, RELOGIO[2]), "#3a2416", g)   # pulseira
+    M.caixa((larg - 0.03, larg - 0.02, 0.2), (ax, ay, topo - 0.69), "#f0c8a8", g)     # mao
+    M.quadro_imagem("relogio_440.png", (ax, ay - larg / 2 - 0.011, RELOGIO[2]), 0.17, 0.17, rot=(90, 0, 0),
+                    emissao=0.25, pai=g)
     # luz
     M._luz_ponto((0, 1.0, 3.0), 110, "#ffd9a0", g)
     M._luz_ponto((0.6, 0.2, 1.4), 30, "#dfe8ff", g)
