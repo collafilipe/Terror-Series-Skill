@@ -21,7 +21,7 @@ def esc(c, f):
 
 def pintar(nome, pele, cabelo, camisa, calca, sapato=(40, 40, 46), cabelo_tipo="curto", rosto=True, bigode=None,
            barba=None, oculos=False, batom=None, manga="curta", calca_tipo="longa", detalhe=None, cor2=None,
-           serio=False):
+           serio=False, morto=False):
     im = Image.new("RGB", (1024, 1024), FUNDO)
     d = ImageDraw.Draw(im)
     sombra = esc(pele, 0.86)
@@ -189,6 +189,27 @@ def pintar(nome, pele, cabelo, camisa, calca, sapato=(40, 40, 46), cabelo_tipo="
             d.rectangle([px, 864, px + 255, 930], fill=calca)
         d.rectangle([px, 988, px + 255, 1023], fill=sapato)
         d.rectangle([px, 1012, px + 255, 1023], fill=(235, 235, 235) if sapato[0] > 150 else esc(sapato, 0.6))
+    if morto:   # olhos fechados e a roupa manchada de vermelho (peito, barriga e um pouco nas laterais)
+        import random
+        r = random.Random(11)
+        for ex in (38, 90):
+            d.rectangle([128 + ex - 9, 128 + 60, 128 + ex + 9, 128 + 84], fill=pele)
+            d.line([(128 + ex - 9, 128 + 74), (128 + ex + 9, 128 + 74)], fill=(52, 34, 28), width=5)
+        escuro_s, vivo_s = (104, 10, 16), (156, 20, 26)
+        cx, cy = 96 + 70, 784 + 62
+        for _ in range(26):
+            x, y, q = cx + r.randrange(-30, 31), cy + r.randrange(-26, 40), r.randrange(10, 22)
+            d.ellipse([x - q, y - q, x + q, y + q], fill=vivo_s)
+        for _ in range(12):
+            x, y, q = cx + r.randrange(-16, 17), cy + r.randrange(-12, 22), r.randrange(8, 15)
+            d.ellipse([x - q, y - q, x + q, y + q], fill=escuro_s)
+        for dx in (-22, -4, 14, 30):                       # escorridos ate a cintura e o colo
+            d.rounded_rectangle([cx + dx - 5, cy + 20, cx + dx + 5, 927], radius=5, fill=vivo_s)
+        d.ellipse([96 + 30, 928 + 6, 96 + 104, 928 + 70], fill=vivo_s)          # colo
+        for x0 in (0, 224):                                # laterais do tronco
+            for _ in range(6):
+                x, y, q = x0 + r.randrange(20, 76), 850 + r.randrange(0, 60), r.randrange(7, 14)
+                d.ellipse([x - q, y - q, x + q, y + q], fill=vivo_s)
     im.save(PASTA / f"texture-br_{nome}.png")
     if rosto:   # mesma skin com a boca aberta: o boneco alterna as duas enquanto fala (KBoneco.falar)
         fala = im.copy()
@@ -228,7 +249,7 @@ ELENCO = {
     # --- O Relojoeiro
     "detetive": dict(serio=True, pele=P_PARDA, cabelo=CASTANHO, camisa=(178, 150, 110), calca=(58, 60, 70), detalhe="terno",
                      cor2=(120, 30, 40), manga="longa", sapato=(50, 36, 28)),
-    "presidente": dict(serio=True, pele=P_CLARA, cabelo=GRISALHO, camisa=(28, 36, 64), calca=(28, 36, 64), detalhe="terno",
+    "presidente": dict(morto=True, serio=True, pele=P_CLARA, cabelo=GRISALHO, camisa=(28, 36, 64), calca=(28, 36, 64), detalhe="terno",
                        manga="longa", sapato=(20, 20, 24)),
     "coronel": dict(serio=True, pele=P_MORENA, cabelo=GRISALHO, camisa=(50, 72, 50), calca=(50, 72, 50), detalhe="farda",
                     cor2=(222, 184, 70), manga="longa", bigode=(130, 130, 136)),

@@ -193,12 +193,23 @@ def gabinete(raios=()):
     M._luz_ponto((-0.9, 3.4, 1.15), 70, "#ffd9a0", g)
     # poltrona de lado para a porta: o presidente fica de perfil, virado para +X, e o braco direito dele (o lado da
     # camera) cai reto do ombro, colado no tronco, com o relogio no pulso
-    couro = "#4a1418"
-    M.caixa((0.8, 0.42, 0.14), (0.0, 2.3, 0.5), couro, g)                 # assento estreito: o braco passa por fora
-    M.caixa((0.16, 0.8, 1.4), (-0.4, 2.3, 1.08), couro, g)                # encosto (atras dele, em -X)
-    M.caixa((0.74, 0.12, 0.34), (0.0, 2.72, 0.72), couro, g)              # braco da poltrona so do lado da janela
-    M.cilindro(0.3, 0.06, (0, 2.3, 0.0), "#222226", 10, pai=g)
-    M.cilindro(0.05, 0.42, (0, 2.3, 0.04), "#222226", 8, pai=g)
+    couro, couro2, pe = "#7a4f2c", "#5a3a20", "#2a1a10"     # couro marrom: destaca do tapete vermelho
+    # poltrona de escritorio antiga: 4 pes de madeira bem visiveis, saia, almofada, encosto alto com botoes.
+    # O assento cobre o corpo inteiro e termina rente ao tronco do lado da camera (y=2.07): o braco cai por fora.
+    for sx in (-0.5, 0.52):
+        for sy in (2.13, 2.75):
+            M.caixa((0.1, 0.1, 0.22), (sx, sy, 0.11), pe, g)                         # pes
+            M.caixa((0.13, 0.13, 0.04), (sx, sy, 0.02), OURO, g)                     # ponteira dourada
+    M.caixa((1.16, 0.76, 0.2), (0.01, 2.44, 0.32), couro2, g)                        # saia (0.22..0.42)
+    M.caixa((1.18, 0.78, 0.035), (0.01, 2.44, 0.235), OURO, g)                       # friso dourado
+    M.caixa((1.0, 0.72, 0.15), (0.09, 2.44, 0.495), couro, g)                        # almofada (topo em 0.57)
+    M.caixa((0.2, 0.86, 1.3), (-0.5, 2.4, 0.95), couro, g)                           # encosto alto (atras dele, em -X)
+    M.caixa((0.26, 0.92, 0.14), (-0.5, 2.4, 1.64), couro2, g)                        # rolo do topo
+    for by in (2.16, 2.4, 2.64):
+        for bz in (0.85, 1.12, 1.39):
+            M.esfera(0.028, (-0.395, by, bz), OURO, pai=g)                           # botoes do encosto
+    M.caixa((0.98, 0.16, 0.3), (0.06, 2.82, 0.72), couro, g)                         # braco da poltrona (lado da janela)
+    M.caixa((1.02, 0.2, 0.07), (0.06, 2.82, 0.89), couro2, g)
     pres = M.Boneco("br_presidente", (0, 2.3), olhar=90)
     pres.parado(1, bpy.context.scene.frame_end, "sentar", olhar=90)
     # mede o tronco e o braco do modelo para o braco caido nascer exatamente no ombro
@@ -222,10 +233,34 @@ def gabinete(raios=()):
         direito.hide_render = True                                         # senao ele fica com dois bracos direitos
         direito.hide_viewport = True
     RELOGIO = (ax, ay - 0.1, topo - 0.55)
-    M.caixa((larg, larg, 0.47), (ax, ay, topo - 0.235), "#1c2440", g)                 # manga, do ombro para baixo
+
+    def igual_ao_boneco(cor):
+        """Material com a MESMA resposta de luz da roupa do boneco (so troca a textura por uma cor lisa)."""
+        if tronco is None or not tronco.material_slots:
+            return None
+        m = tronco.material_slots[0].material.copy()
+        nt = m.node_tree
+        tex = next((n for n in nt.nodes if n.type == "TEX_IMAGE"), None)
+        if tex is None:
+            return None
+        rgb = nt.nodes.new("ShaderNodeRGB")
+        rgb.outputs[0].default_value = (*M.hexrgb(cor), 1)
+        for lk in list(tex.outputs["Color"].links):
+            nt.links.new(rgb.outputs[0], lk.to_socket)
+        return m
+
+    # cabeca caida para a frente
+    cab = next((o for o in pres._novos if o.name.startswith("head")), None)
+    if cab is not None:
+        from mathutils import Euler
+        if cab.rotation_mode == "QUATERNION":
+            cab.delta_rotation_quaternion = Euler((math.radians(30), 0, 0)).to_quaternion()
+        else:
+            cab.delta_rotation_euler = (math.radians(30), 0, 0)
+    M.caixa((larg, larg, 0.47), (ax, ay, topo - 0.235), "#1c2440", g, material=igual_ao_boneco("#1c2440"))   # manga = cor do terno
     M.caixa((larg + 0.01, larg + 0.01, 0.05), (ax, ay, topo - 0.49), "#f2efe6", g)    # punho da camisa
     M.caixa((larg + 0.015, larg + 0.015, 0.09), (ax, ay, RELOGIO[2]), "#3a2416", g)   # pulseira
-    M.caixa((larg - 0.03, larg - 0.02, 0.2), (ax, ay, topo - 0.69), "#f0c8a8", g)     # mao
+    M.caixa((larg - 0.03, larg - 0.02, 0.2), (ax, ay, topo - 0.69), "#f0c6a0", g, material=igual_ao_boneco("#f0c6a0"))   # mao = cor da pele
     M.quadro_imagem("relogio_440.png", (ax, ay - larg / 2 - 0.011, RELOGIO[2]), 0.17, 0.17, rot=(90, 0, 0),
                     emissao=0.25, pai=g)
     # luz
