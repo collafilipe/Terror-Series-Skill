@@ -95,6 +95,10 @@ Registre cada decisão em `series/<slug>/estado.json` e cada lição nova em `GU
 - Nunca mostrar parte do corpo solta (braço sem corpo): o personagem inteiro tem que existir na cena.
 - Toda ação tem som (porta, portão, passos, chuva, objetos).
 
+## Antes do render final
+- Mostrar ao usuário a folha de prévias (principalmente cenas com personagem, móvel ou objeto novo) e esperar o OK.
+  O render leva ~50 min; cada correção depois dele custa outro render inteiro.
+
 ## Recursos prontos no gerador
 - Caderno: `"nota": "..."` + `("som", "lapis")` na cena; recapitulação com `"caderno_cheio": True`.
 - Opções narradas: a última fala do narrador com "Opção A: ... Opção B: ..." sincroniza a tela de escolha sozinha.

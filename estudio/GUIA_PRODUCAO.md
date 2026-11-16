@@ -54,6 +54,11 @@ Atualizado em 15/11/2026. Leia antes de produzir um capítulo novo.
   cenário `M.onibus()`, texturas em `blender/fazer_texturas_onibus.py`, sons novos (motor, campainha, freio).
   Render: 44 min para 93 s. Saldo ElevenLabs depois dele: 2.001 de 10.000. **APROVADO pelo usuário ("ficou muito bom"): este capítulo é o PADRÃO a repetir.**
 
+- `series/o_relojoeiro/` — "O Relojoeiro" cap. 1 "4h40", feito em 15/11/2026: **primeira pessoa**, caderno do detetive,
+  opções narradas, boca mexendo, sons em toda ação. Cenários em `blender/palacio.py`. 176 s, render de 50 min
+  (5.300 quadros). Saldo ElevenLabs depois dele: 4.054 de 10.000. Estado em `series/o_relojoeiro/estado.json`.
+  Aguardando aprovação do vídeo pelo usuário.
+
 ## Lições do capítulo do ônibus
 - Câmera dentro de cenário apertado: conferir na prévia se corrimão, banco ou passageiro tapa a frente.
 - `piscar_luzes` precisa de uma chave de "luz normal" antes de começar (já corrigido), senão a cena abre escura.
@@ -158,3 +163,8 @@ O usuário quer **som de tudo o que acontece**, para dar suspense e drama, sempr
   (`br_presidente`), com o braço caído ligado ao ombro.
 - **Tudo o que acontece tem som:** chuva, portão abrindo, porta abrindo (`rangido`), passos, maçaneta, página. O usuário
   esclareceu que não era reclamação do áudio, e sim a regra: nenhuma ação muda sem som.
+- **Antes do render final (50 min), mostrar ao usuário a prévia das cenas com personagem ou objeto novo.** No Relojoeiro
+  o render foi reiniciado 6 vezes por correções no presidente e na poltrona que apareceriam numa prévia de 10 segundos.
+- Personagem morto: skin com `morto=True` (olhos fechados, roupa manchada) e cabeça caída. Peça extra colada num boneco
+  (manga, mão) usa o material copiado do próprio boneco, senão a cor sai diferente. Móvel onde alguém senta tem que ter
+  pés e assento visíveis embaixo do corpo inteiro.
