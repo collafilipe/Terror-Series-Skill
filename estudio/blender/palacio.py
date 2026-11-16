@@ -404,14 +404,16 @@ def suspeitos(F, some=None, olhar=0):
         b.parado(1, F, "parado")
         if some and some[0] == tipo:
             f = int(some[1])
-            b.root.location.z = 0
-            b.root.keyframe_insert("location", frame=f - 1)
-            b.root.location.z = -30
-            b.root.keyframe_insert("location", frame=f)
-            for fc in getattr(b.root.animation_data.action, "fcurves", []):
-                if fc.data_path == "location":
-                    for kp in fc.keyframe_points:
-                        kp.interpolation = "CONSTANT"
+            fim = bpy.context.scene.frame_end + 2
+            for fr, z in ((1, 0), (f - 2, 0), (f - 1, 0), (f, -40), (f + 1, -40), (fim, -40)):
+                b.root.location.z = z
+                b.root.keyframe_insert("location", frame=fr)
+            for o in b._novos if hasattr(b, "_novos") else []:      # e nao e renderizada depois de sumir
+                if o.type == "MESH":
+                    o.hide_render = False
+                    o.keyframe_insert("hide_render", frame=f - 1)
+                    o.hide_render = True
+                    o.keyframe_insert("hide_render", frame=f)
             # o cracha dela fica caido no tapete
             cr = M.caixa((0.24, 0.34, 0.02), (x + 0.1, Y_SUSPEITOS - abs(x) * 0.12 - 0.15, 0.06), "#f2efe6", rot=(0, 0, 0.5))
             M.caixa((0.16, 0.1, 0.022), (x + 0.1, Y_SUSPEITOS - abs(x) * 0.12 - 0.15, 0.062), "#2a6fdb", rot=(0, 0, 0.5))

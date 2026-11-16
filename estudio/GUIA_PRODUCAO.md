@@ -168,3 +168,8 @@ O usuário quer **som de tudo o que acontece**, para dar suspense e drama, sempr
 - Personagem morto: skin com `morto=True` (olhos fechados, roupa manchada) e cabeça caída. Peça extra colada num boneco
   (manga, mão) usa o material copiado do próprio boneco, senão a cor sai diferente. Móvel onde alguém senta tem que ter
   pés e assento visíveis embaixo do corpo inteiro.
+- **Corrigir uma cena sem renderizar tudo:** `gerar_drama.py <plano> --refazer 8` (ou `3,8`) renderiza só aquelas cenas e
+  troca o trecho no `final.mp4` (3 min em vez de 50). Só vale se a duração das cenas não mudou.
+- **Personagem que some** tem que ficar sumido até o fim da cena: no Relojoeiro a médica afundava e voltava subindo do
+  chão, porque a animação interpolava até a última chave. `P.suspeitos(some=...)` agora esconde o boneco de vez.
+  No Blender 4.5 não confiar em "interpolação constante": sempre repetir a chave final.

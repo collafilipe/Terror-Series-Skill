@@ -516,7 +516,7 @@ def caixa_opcao(letra, texto, cor):
     return im
 
 
-def compor(cenas_info, total_frames, saida_mp4, titulo="", serie=None):
+def compor(cenas_info, total_frames, saida_mp4, titulo="", serie=None, gf0=0):
     tit = None  # titulo gigante de abertura desativado a pedido (tampava a cena)
     DUR_TIT = 66
     hud_cache = {}
@@ -534,7 +534,7 @@ def compor(cenas_info, total_frames, saida_mp4, titulo="", serie=None):
         ["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
          "-i", "-", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", str(saida_mp4)],
         stdin=subprocess.PIPE)
-    gf = 0
+    gf = gf0   # gf0 > 0: compondo so um trecho do video (gerar_drama --refazer)
     for info in cenas_info:
         rot = json.loads((info["pasta"] / "rotulos.json").read_text(encoding="utf-8"))
         etqs = [(r, etiqueta(r["texto"])) for r in rot[:1]]  # no maximo 1 etiqueta por cena

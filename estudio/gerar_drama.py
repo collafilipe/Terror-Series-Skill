@@ -190,6 +190,8 @@ def main():
     ap.add_argument("--cenas", help="so estas cenas na previa, ex: 3,7")
     ap.add_argument("--amostras", type=int, default=3, help="quadros por cena na previa")
     ap.add_argument("--so-audio", action="store_true", help="refaz so o som e troca no final.mp4 existente")
+    ap.add_argument("--refazer", help="renderiza de novo so estas cenas e troca no final.mp4 existente, ex: 8 ou 3,8 "
+                                      "(a duracao das cenas nao pode ter mudado)")
     args = ap.parse_args()
     arq = Path(args.plano).resolve()
     plano = runpy.run_path(str(arq))["PLANO"]
@@ -270,6 +272,56 @@ def main():
                 tudo.paste(f, ((k % cols) * w, (k // cols) * h))
             tudo.save(work / "previas.jpg", quality=85)
             print(f"PREVIAS={work / 'previas.jpg'}")
+        return
+
+    if args.refazer:
+        antigo = base.probe_duration(work / "final.mp4")
+        if abs(antigo - total) > 0.4:
+            raise SystemExit(f"duracao mudou ({antigo:.1f}s -> {total:.1f}s): precisa renderizar tudo de novo")
+        serie = {"rotulo": plano["rotulo"], "pergunta": plano["pergunta"], "a": plano["opcao_a"], "b": plano["opcao_b"],
+                 "card_frames": frames[-1] - marcas_c[-1]["card"]}
+        mc = marcas_c[-1]
+        if "card_b" in mc:
+            serie["atrasos"] = (0, 6, mc["card_b"] - mc["card"], mc["card_fim"] - mc["card"])
+        escrever_ass(legendas_abs, work / "legendas.ass")
+        (work / "fonts").mkdir(exist_ok=True)
+        shutil.copy(base.FONT_FILE, work / "fonts" / base.FONT_FILE.name)
+        tot_f = sum(frames)
+        for i in sorted(int(x) - 1 for x in args.refazer.split(",")):
+            c = plano["cenas"][i]
+            pasta = work / f"cena_{i:02d}"
+            if pasta.exists():
+                shutil.rmtree(pasta)
+            t1 = time.time()
+            erro = G.blender_cena(c["codigo"], frames[i], pasta, seed=i + 1, extra={"marcas": marcas_c[i]})
+            if erro:
+                raise SystemExit(f"cena {i + 1} falhou: {erro[-800:]}")
+            base.log(f"   cena {i + 1}: {frames[i]} quadros em {time.time() - t1:.0f}s")
+            f0 = sum(frames[:i])
+            f1 = f0 + frames[i]
+            info = {"pasta": pasta, "frames": frames[i], "numero": "", "hud": c.get("hud", ""),
+                    "overlay": C.overlay(plano, i, marcas_c[i], frames[i])}
+            G.compor([info], tot_f, work / "trecho.mp4", plano["titulo"], serie, gf0=f0)
+            t0s = f0 / FPS
+            partes, entradas = [], []
+            if f0 > 0:
+                partes.append(f"[0:v]trim=end_frame={f0},setpts=PTS-STARTPTS[a]")
+                entradas.append("[a]")
+            partes.append(f"[1:v]setpts=PTS+{t0s:.4f}/TB,subtitles=legendas.ass:fontsdir=fonts,setpts=PTS-STARTPTS[b]")
+            entradas.append("[b]")
+            if f1 < tot_f:
+                partes.append(f"[0:v]trim=start_frame={f1},setpts=PTS-STARTPTS[c]")
+                entradas.append("[c]")
+            partes.append("".join(entradas) + f"concat=n={len(entradas)}:v=1:a=0[v]")
+            base.run(["ffmpeg", "-y", "-v", "error", "-i", "final.mp4", "-i", "trecho.mp4", "-filter_complex", ";".join(partes),
+                      "-map", "[v]", "-map", "0:a", "-c:a", "copy", "-c:v", "libx264", "-preset", "medium", "-crf", "18",
+                      "-pix_fmt", "yuv420p", "-r", str(FPS), "-movflags", "+faststart", "final_novo.mp4"], cwd=work)
+            (work / "final.mp4").unlink()
+            (work / "final_novo.mp4").rename(work / "final.mp4")
+            for p in pasta.glob("f_*.png"):
+                p.unlink()
+            (work / "trecho.mp4").unlink(missing_ok=True)
+        print(f"VIDEO_FILE={work / 'final.mp4'}")
         return
 
     base.log("2/4 renderizando no Blender...")
