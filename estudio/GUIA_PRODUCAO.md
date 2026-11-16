@@ -57,7 +57,8 @@ Atualizado em 15/11/2026. Leia antes de produzir um capítulo novo.
 - `series/o_relojoeiro/` — "O Relojoeiro" cap. 1 "4h40", feito em 15/11/2026: **primeira pessoa**, caderno do detetive,
   opções narradas, boca mexendo, sons em toda ação. Cenários em `blender/palacio.py`. 176 s, render de 50 min
   (5.300 quadros). Saldo ElevenLabs depois dele: 4.054 de 10.000. Estado em `series/o_relojoeiro/estado.json`.
-  Aguardando aprovação do vídeo pelo usuário.
+  **APROVADO pelo usuário em 15/11/2026: é o PADRÃO das histórias em primeira pessoa** (junto com o ônibus, que é o
+  padrão de ritmo e clima).
 
 ## Lições do capítulo do ônibus
 - Câmera dentro de cenário apertado: conferir na prévia se corrimão, banco ou passageiro tapa a frente.
